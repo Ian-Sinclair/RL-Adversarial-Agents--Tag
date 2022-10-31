@@ -4,7 +4,6 @@ from typing import List
 import numpy as np
 import tkinter as tk 
 from tkinter import *
-import time
 
 class agent( ) :
     def __init__(self ,

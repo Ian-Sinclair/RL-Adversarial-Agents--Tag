@@ -30,7 +30,7 @@ class GUI(tk.Tk) :
     def play_game(self, game , 
             agents : List,
             animation_refresh_seconds = 0.01
-            ) :
+            ) :                         #     Lol this method play in reverse btw.
             characters = []
             self.root.wait_visibility() # run event loop until window appears
             n1 = len(game.grid)
@@ -65,4 +65,5 @@ class GUI(tk.Tk) :
                     A.moveRandom(game)
                     #print('--------------------------------------')
                     #game.print_game()
+            self.root.destroy()
             self.root.mainloop()
