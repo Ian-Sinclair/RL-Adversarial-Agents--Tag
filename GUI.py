@@ -26,6 +26,53 @@ class GUI(tk.Tk) :
             self.canvas.create_line(0,(i/n1)*self.size[1],self.size[0],(i/n1)*self.size[1])
         for i in range(len(game.grid[0])) :
             self.canvas.create_line((i/n2)*self.size[0],0,(i/n2)*self.size[0],self.size[1])
+    
+    def demo(self, game,
+            agents,
+            game_lenth = 100,
+            epsilon = 0.5,
+            animation_refresh_seconds=0.02) :
+
+        characters = []
+        self.root.wait_visibility()
+        n1 = len(game.grid)
+        n2 = len(game.grid[0])
+        radx = self.size[0]/n2
+        rady = self.size[1]/n1
+        self.draw_grid(game, n1, n2)
+        [
+            [self.canvas.create_rectangle((j/n2)*self.size[0],
+                (i/n1)*self.size[1],
+                (j/n2)*self.size[0] + radx,
+                (i/n1)*self.size[1] + rady,
+                fill="black", outline="black", width=4)  
+            for j in range(len(game.grid[i])) if game.grid[i][j] in game.default_objects
+            ]
+            for i in range(len(game.grid))
+        ]
+        for A in agents :
+                a,b = A.state
+                characters += [self.canvas.create_oval((b/n2)*self.size[0],
+                    (a/n1)*self.size[1],
+                    (b/n2)*self.size[0] + radx,
+                    (a/n1)*self.size[1] + rady,
+            fill=A.agent_color, outline=A.agent_color, width=0) ]
+
+        for i in range(game_lenth) :
+            for A,Ob in zip(agents,characters) :
+                a,b = A.state
+                self.canvas.moveto(Ob, (b/n2)*self.size[0], (a/n1)*self.size[1])
+                self.root.update()
+                time.sleep(animation_refresh_seconds)
+
+
+                A.moveRandom(game)
+
+                
+                #print('--------------------------------------')
+                #game.print_game()
+        self.root.destroy()
+        self.root.mainloop()
 
     def play_game(self, game , 
             agents : List,
@@ -64,6 +111,6 @@ class GUI(tk.Tk) :
                     time.sleep(animation_refresh_seconds)
                     A.moveRandom(game)
                     #print('--------------------------------------')
-                    #game.print_game()
+                    game.print_game()
             self.root.destroy()
             self.root.mainloop()

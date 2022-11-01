@@ -3,11 +3,8 @@
 """
 import agent as char
 import GUI
-import random as rnd
-
 import numpy as np
-import tkinter as tk 
-from tkinter import *
+
 
 
 class game( ) :
@@ -45,7 +42,7 @@ class game( ) :
         if self.playable :
             #  Update screen.
             pass
-    
+
     def print_game(self) :
         [print(''.join(a)) for a in self.grid]
 
