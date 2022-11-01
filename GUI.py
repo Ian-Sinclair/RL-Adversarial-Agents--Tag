@@ -1,6 +1,6 @@
 
 import random as rnd
-from typing import List
+from agent import agent
 import numpy as np
 import tkinter as tk 
 from tkinter import *
@@ -66,16 +66,22 @@ class GUI(tk.Tk) :
                 time.sleep(animation_refresh_seconds)
 
 
-                A.moveRandom(game)
-
-                
+                x,y = A.state
+                encoding_state = A.encode_Q_State(game)
+                action = A.q_table.getAction( encoding_state )
+                action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
+                new_state, _ = A.q_table.getNewState( action, A.state )
+                if A.isOpen(game , new_state) :
+                    game.grid[new_state[0]][new_state[1]] = A.agent_symbol
+                    A.state = new_state
+                    game.grid[x][y] = ' '
                 #print('--------------------------------------')
                 #game.print_game()
         self.root.destroy()
         self.root.mainloop()
 
     def play_game(self, game , 
-            agents : List,
+            agents : list,
             animation_refresh_seconds = 0.01
             ) :                         #     Lol this method play in reverse btw.
             characters = []

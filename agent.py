@@ -6,7 +6,7 @@ import numpy as np
 import tkinter as tk 
 from tkinter import *
 
-possible_moves = ['North', 'East', 'South', 'West', 'Stay_still', 'Move_Random']
+possible_moves = ['North', 'East', 'South', 'West', 'Stay_still']
 
 class q_table() :
     def __init__(self, 
@@ -50,9 +50,15 @@ class q_table() :
             'East' : (-1,0),
             'West' : (1,0),
             'Stay_still' : (0,0),
-            'Move_Random' : np.random.choice(self.possible_moves)
+            'Move_Random' : None
         }
-        return tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
+        if action_map[action] == None : action = self.possible_moves[np.random.choice(list(range(5)))]
+        x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
+        while not (0<=x < 10) or not (0<=y < 10) :
+            action = self.possible_moves[np.random.choice(list(range(5)))]
+            x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
+        return (x,y), action
+
 
 
 
@@ -98,8 +104,8 @@ class agent( ) :
             self.state = (i+dx, j+dy)
             game.grid[i][j] = ' '
     
-    def encode_Q_State(self) :
-        return eval("encode_" + self.learning_style + '(self.game, self.state)')
+    def encode_Q_State(self, game) :
+        return eval("encode_" + self.learning_style + '(game, self.state)')
 
     def isOpen(self , game, new_state : tuple ) :
         a,b = new_state
@@ -109,21 +115,21 @@ class agent( ) :
         if game.grid[a][b] in game.default_objects : return False
         return True
     
-    def get_reward(self, game, new_state, target ) :
+    def get_reward(self, game, new_state, target, time_alive = None ) :
         if self.type == 'seeker' : return self.get_reward_seeker(game, new_state, target)
-        return self.get_reward_hider(game, new_state, target)
+        return self.get_reward_hider(game, new_state, target, time_alive)
 
 
     def get_reward_seeker(self, game, new_state, target) :
         x,y = new_state
         if game.grid[x][y] == target : return 1000, True
-        if not self.isOpen(game, game.grid[x][y]) : return - 10, False
+        if not self.isOpen(game, (x,y)) : return - 10, False
         return 0, False
     def get_reward_hider(self, game, new_state, target, time_alive) :
         x,y = new_state
         if game.grid[x][y] == target : return -1000, True
-        if not self.isOpen(game, game.grid[x][y]) : return - 10, False
-        return time_alive*0.5, True
+        if not self.isOpen(game, (x,y)) : return - 10, False
+        return time_alive*0.5, False
 
 
 
@@ -131,12 +137,16 @@ def encode_basic(game, pos : tuple, size = 5) :
     #  make mask with basic game objects, center mask at position
     #  overlay mask with image.
     mask = [[game.default_objects[0] for j in range(size)] for i in range(size)]
-    for i in range(pos[0] - size/2 , pos[0]-size/2+1) :
-        for j in range(pos[1] - size/2 , pos[1]-size/2+1) :
+    x,y = -1,-1
+    for i in range(pos[0] - int(size/2) , pos[0]+int(size/2+1)) :
+        x+= 1
+        y = -1
+        for j in range(pos[1] - int(size/2) , pos[1]+int(size/2)+1) :
+            y+=1
             if ( (0<= i < len(game.grid) )
                 and (0<= j < len(game.grid[0]) ) ) :
                 if game.grid[i][j] not in game.default_objects :
-                    mask[i][j] = game.grid[i][j]
+                    mask[x][y] = game.grid[i][j]
     return tuple(
         [item for sublist in mask for item in sublist]
     )

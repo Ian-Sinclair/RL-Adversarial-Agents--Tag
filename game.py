@@ -46,7 +46,7 @@ class game( ) :
     def print_game(self) :
         [print(''.join(a)) for a in self.grid]
 
-
+'''
 for i in range(100) :
     q = game((20,20), walls_prob=0.1, playable=True)
 
@@ -56,7 +56,7 @@ for i in range(100) :
 
     play = GUI.GUI()
     play.play_game(q, [red,blue], animation_refresh_seconds=0.02)
-
+'''
 
 '''
 for i in range(50) :
