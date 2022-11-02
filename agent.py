@@ -17,7 +17,7 @@ class q_table() :
     
     def basic( self ) : # 3X3 In front of target.
         return {}
-    def update_q_Table(self, state, reward, action, new_state, discount = 1, alpha = 0.7) :
+    def update_q_Table(self, state, reward, action, new_state, discount = 1, alpha = 0.5) :
         if state not in self.q_table.keys() or new_state not in self.q_table.keys() :
             if state not in self.q_table.keys() :
                 self.q_table[state] = {}
@@ -28,14 +28,13 @@ class q_table() :
                 for a in self.possible_moves :
                     self.q_table[new_state][a] = 0
             return True
-        else : 
-            if action in self.possible_moves :
-                sample = reward + discount*max(self.q_table[new_state].values())
-                self.q_table[state][action] = (
-                    (1-alpha)*self.q_table[state][action]
-                    + alpha*sample
-                    )
-                return True
+        if action in self.possible_moves :
+            sample = reward + discount*max(self.q_table[new_state].values())
+            self.q_table[state][action] = (
+                (1-alpha)*self.q_table[state][action]
+                + alpha*sample
+                )
+            return True
         return False
     
     def getAction(self, state) :
@@ -43,7 +42,7 @@ class q_table() :
             return max(self.q_table[state], key=self.q_table[state].get)
         return np.random.choice(self.possible_moves)
     
-    def getNewState(self, action : str, state : tuple) :
+    def getNewState(self,game , action : str, state : tuple) :
         action_map = {
             'North' : (0,1),
             'South' : (0,-1),
@@ -54,7 +53,7 @@ class q_table() :
         }
         if action_map[action] == None : action = self.possible_moves[np.random.choice(list(range(5)))]
         x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
-        while not (0<=x < 10) or not (0<=y < 10) :
+        while not (0<=x < len(game.grid)) or not (0<=y < len(game.grid[0])) :
             action = self.possible_moves[np.random.choice(list(range(5)))]
             x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
         return (x,y), action
@@ -104,8 +103,8 @@ class agent( ) :
             self.state = (i+dx, j+dy)
             game.grid[i][j] = ' '
     
-    def encode_Q_State(self, game) :
-        return eval("encode_" + self.learning_style + '(game, self.state)')
+    def encode_Q_State(self, game, state) :
+        return eval("encode_" + self.learning_style + '(game, state)')
 
     def isOpen(self , game, new_state : tuple ) :
         a,b = new_state
@@ -115,25 +114,29 @@ class agent( ) :
         if game.grid[a][b] in game.default_objects : return False
         return True
     
-    def get_reward(self, game, new_state, target, time_alive = None ) :
-        if self.type == 'seeker' : return self.get_reward_seeker(game, new_state, target)
-        return self.get_reward_hider(game, new_state, target, time_alive)
+    def get_reward(self, game, q_state , new_state, target, time_alive = None ) :
+        if self.type == 'seeker' : return self.get_reward_seeker(game, q_state, new_state, target)
+        return self.get_reward_hider(game, q_state, new_state, target, time_alive)
 
 
-    def get_reward_seeker(self, game, new_state, target) :
+    def get_reward_seeker(self, game, q_state , new_state, target) :
         x,y = new_state
-        if game.grid[x][y] == target : return 1000, True
+        if game.grid[x][y] == target : 
+            return 1000, True
+        if target in q_state : return 100, False
         if not self.isOpen(game, (x,y)) : return - 10, False
         return 0, False
-    def get_reward_hider(self, game, new_state, target, time_alive) :
+    def get_reward_hider(self, game, q_state , new_state, target, time_alive) :
         x,y = new_state
-        if game.grid[x][y] == target : return -1000, True
+        if (x,y) == target : 
+            return -1000, True
+        if target in q_state : return -100, False
         if not self.isOpen(game, (x,y)) : return - 10, False
-        return time_alive*0.5, False
+        return 1, False
 
 
 
-def encode_basic(game, pos : tuple, size = 5) :
+def encode_basic(game, pos : tuple, size = 3) :
     #  make mask with basic game objects, center mask at position
     #  overlay mask with image.
     mask = [[game.default_objects[0] for j in range(size)] for i in range(size)]

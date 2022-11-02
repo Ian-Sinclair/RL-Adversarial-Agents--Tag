@@ -30,7 +30,7 @@ class GUI(tk.Tk) :
     def demo(self, game,
             agents,
             game_lenth = 100,
-            epsilon = 0.5,
+            epsilon = 1,
             animation_refresh_seconds=0.02) :
 
         characters = []
@@ -67,16 +67,25 @@ class GUI(tk.Tk) :
 
 
                 x,y = A.state
-                encoding_state = A.encode_Q_State(game)
+                encoding_state = A.encode_Q_State(game, A.state)
                 action = A.q_table.getAction( encoding_state )
                 action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
-                new_state, _ = A.q_table.getNewState( action, A.state )
+                new_state, _ = A.q_table.getNewState(game, action, A.state )
+                if A.type == 'seeker' :
+                    reward, end =  A.get_reward(game , encoding_state, new_state , agents[1].state)
+                else :
+                    reward, end =  A.get_reward(game , encoding_state, new_state , agents[0].state, i)
                 if A.isOpen(game , new_state) :
                     game.grid[new_state[0]][new_state[1]] = A.agent_symbol
                     A.state = new_state
                     game.grid[x][y] = ' '
                 #print('--------------------------------------')
                 #game.print_game()
+                if end == True : 
+                    break
+            if end == True : 
+                self.root.destroy()
+                return True
         self.root.destroy()
         self.root.mainloop()
 

@@ -29,11 +29,17 @@ class game( ) :
 
     def randomGrid( self ) :
         prob = [1-self.walls_prob ] + [self.walls_prob/len(self.default_objects) ]*len(self.default_objects)
-        return [[
+        grid = [[
                 np.random.choice(self.all_objects, p = prob)
                 for j in range(self.size[0])] 
             for i in range(self.size[1])
         ]
+        grid[0] = [self.default_objects[0] for a in grid[0]]
+        grid[-1] = [self.default_objects[0] for a in grid[-1]]
+        for row in grid :
+            row[0] = self.default_objects[0]
+            row[-1] = self.default_objects[0]
+        return grid
 
 
     def update_grid( self, state, value ) :
