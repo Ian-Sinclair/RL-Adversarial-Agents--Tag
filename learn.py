@@ -36,7 +36,10 @@ def basic_Q_learning(
         for ii in range(game_lenth) :
             for A in agents :
                 x,y = A.state
-                encoding_state = A.encode_Q_State(q, A.state)
+                if A.type == 'seeker' :
+                    encoding_state = A.encode_Q_State(q, A.state, target_pos=agents[1].state)
+                else :
+                    encoding_state = A.encode_Q_State(q, A.state, target_pos=agents[0].state)
                 action = A.q_table.getAction( encoding_state )
                 action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
                 new_state, action = A.q_table.getNewState(q, action, A.state )
@@ -52,13 +55,19 @@ def basic_Q_learning(
                     A.state = new_state
                     q.grid[x][y] = " "
                 else : new_state = A.state
-                new_state_ = A.encode_Q_State(q, new_state)
+                if A.type == 'seeker' :
+                    new_state_ = A.encode_Q_State(q, new_state, target_pos=agents[1].state)
+                else :
+                    new_state_ = A.encode_Q_State(q, new_state, target_pos=agents[0].state)
                 A.q_table.update_q_Table(encoding_state,reward,action,new_state_)
                 if end == True :
                     for B in agents :
                         if B is not A :
                             x,y = B.state
-                            encoding_state = B.encode_Q_State(q, B.state)
+                            if B.type == 'seeker' :
+                                encoding_state = B.encode_Q_State(q, B.state, target_pos=agents[1].state)
+                            else :
+                                encoding_state = B.encode_Q_State(q, B.state, target_pos=agents[0].state)
                             action = B.q_table.getAction( encoding_state )
                             action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
                             new_state = B.state
@@ -74,7 +83,11 @@ def basic_Q_learning(
                                 B.state = new_state
                                 q.grid[x][y] = " "
                             else : new_state = B.state
-                            new_state_ = B.encode_Q_State(q, new_state)
+                            if B.type == 'seeker' :
+                                new_state_ = B.encode_Q_State(q, new_state, target_pos=agents[1].state)
+                            else :
+                                new_state_ = B.encode_Q_State(q, new_state, target_pos=agents[0].state)
+
                             B.q_table.update_q_Table(encoding_state,reward,action,new_state_)
                     break
             if end == True : break
@@ -88,23 +101,28 @@ def basic_Q_learning(
 
         if epoc%500 == 0: 
             play = GUI.GUI()
-            play.demo(q, agents, game_lenth=game_lenth,animation_refresh_seconds=animation_refresh_seconds)
+            play.demo(q, agents, game_lenth=game_lenth,animation_refresh_seconds=animation_refresh_seconds, epsilon=epsilon)
 
     #print(agents[1].q_table.q_table)
     return agents
 
-q = game_((5,5), walls_prob=0)
-red = agent(q, agent_symbol = "R", agent_color = 'red')
-blue = agent(q, agent_symbol = "B", agent_color = 'green', type = 'runner')
+q = game_((10,10), walls_prob=0)
+red = agent(q, agent_symbol = "R", agent_color = 'red', learning_style='basic_tree')
+blue = agent(q, agent_symbol = "B", agent_color = 'green', type = 'runner', learning_style='basic_tree')
 
 
 agents = [red,blue]
-agents = basic_Q_learning(q , agents, game_size=(7,7), game_lenth=200,num_epocs=50000, walls_prob=0.15,animation_refresh_seconds=0.04)
+agents = basic_Q_learning(q , agents, game_size=(10,10), game_lenth=200,num_epocs=10000, walls_prob=0.15,animation_refresh_seconds=0.06)
 
 print('Demoing')
-for i in range(500) :
+'''
+for i in range(50) :
     q = game_((6,6), walls_prob=0.15)
     play = GUI.GUI()
     play.demo(q, agents, game_lenth=400, animation_refresh_seconds=0.04)
-print('Strarting New Training Strategy')
-agents = basic_Q_learning(q , agents, game_size=(13,13), game_lenth=400,num_epocs=100000)
+'''
+#print('Strarting New Training Strategy')
+#agents = basic_Q_learning(q , agents, game_size=(13,13), game_lenth=400,num_epocs=30000, epsilon=0.3, walls_prob=0.1)
+
+
+

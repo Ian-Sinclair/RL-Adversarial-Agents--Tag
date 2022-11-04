@@ -1,142 +1,114 @@
 
+from base64 import encode
 from cmath import inf
+from q-table import q_table
 import random as rnd
 from typing import List
 import numpy as np
 import tkinter as tk 
 from tkinter import *
 
-possible_moves = ['North', 'East', 'South', 'West', 'Stay_still']
+class agent :
+    def __init__(self,
+                position : tuple = (None,None),
+                symbol : set = {'A'}
+                color : str = 'black',
+                gif : str = None ) :
+            self.possible_moves = { 'North' : (0,1),
+                                    'East' : (1,0),
+                                    'South' : (0,-1), 
+                                    'West' : (-1,0), 
+                                    'Stay_still' : (0,0) }
+            self.position = position
+            self.symbol = symbol   #  set
+            self.color = color
+            self.gif = gif
 
-class q_table() :
-    def __init__(self, 
-                func = 'basic',
-                moves = possible_moves) :
-        self.possible_moves = moves
-        self.q_table = eval('self.'+func + '()')
-    
-    def basic( self ) : # 3X3 In front of target.
-        return {}
-    def update_q_Table(self, state, reward, action, new_state, discount = 1, alpha = 0.5) :
-        if state not in self.q_table.keys() or new_state not in self.q_table.keys() :
-            if state not in self.q_table.keys() :
-                self.q_table[state] = {}
-                for a in self.possible_moves :
-                    self.q_table[state][a] = 0
-            if new_state not in self.q_table.keys() :
-                self.q_table[new_state] = {}
-                for a in self.possible_moves :
-                    self.q_table[new_state][a] = 0
-            return True
-        if action in self.possible_moves :
-            sample = reward + discount*max(self.q_table[new_state].values())
-            self.q_table[state][action] = (
-                (1-alpha)*self.q_table[state][action]
-                + alpha*sample
-                )
-            return True
-        return False
-    
-    def getAction(self, state) :
-        if state in self.q_table.keys() : 
-            return max(self.q_table[state], key=self.q_table[state].get)
-        return np.random.choice(self.possible_moves)
-    
-    def getNewState(self,game , action : str, state : tuple) :
-        action_map = {
-            'North' : (0,1),
-            'South' : (0,-1),
-            'East' : (-1,0),
-            'West' : (1,0),
-            'Stay_still' : (0,0),
-            'Move_Random' : None
-        }
-        if action_map[action] == None : action = self.possible_moves[np.random.choice(list(range(5)))]
-        x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
+    def start_position(self, game) :
+        i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
+        while (game.grid[i][j] != game.emptySpace.symbol
+                and (i,j) not in self.active_start_states
+                and game.grid[i][j] != None ) : 
+                i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
+        self.position = (i,j)
+        game.update_grid( self.position , self.agent_symbol ) 
+
+
+    def getNewPosition(self, game , action : str, position : tuple) :
+        if action not in self.possible_moves.keys() : action = self.possible_moves[rnd.randint(0,len(self.possible_moves))]
+        x,y = tuple([ sum(tup) for tup in zip(position, self.possible_moves[action] ) ])
         while not (0<=x < len(game.grid)) or not (0<=y < len(game.grid[0])) :
-            action = self.possible_moves[np.random.choice(list(range(5)))]
-            x,y = tuple([ sum(tup) for tup in zip(state, action_map[action] ) ])
+            action = self.possible_moves[rnd.randint(0,len(self.possible_moves))]
+            x,y = tuple([ sum(tup) for tup in zip(position, self.possible_moves[action] ) ])
         return (x,y), action
-
-
-
-
-class agent( ) :
-    def __init__(self ,
-                game ,
-                state = None,
-                in_active_start_states = [],
-                agent_symbol = "A",
-                agent_color = 'white',
-                learning_style = 'basic',
-                type = 'seeker') :
-        self.agent_symbol = agent_symbol
-        self.type = type
-        self.active_start_states = []
-        self.state = state
-        self.agent_color = agent_color
-        self.learning_style = learning_style
-        self.q_table = q_table()
-
-        self.start(game)
-
-    def start(self, game) :
-        if self.state == None :  #  Pick an available random space to start agent.
-            i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
-            while (game.grid[i][j] != game.emptySpace_Char
-                    and (i,j) not in self.active_start_states
-                    and game.grid[i][j] != None ) : 
-                    i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
-            self.state = (i,j)
-        i,j = self.state
-        game.grid[i][j] = self.agent_symbol
-
-
+    
     def moveRandom(self, game) :  # Need to finish functionality for this method...
-        update = [
-            (0,1), (0,-1), (1,0), (-1,0)
-        ]
-        dx,dy = update[np.random.choice(len(update))]
-        i,j = self.state
-        if self.isOpen(game, (i+dx, j+dy)) :
-            game.grid[i+dx][j+dy] = self.agent_symbol
-            self.state = (i+dx, j+dy)
-            game.grid[i][j] = ' '
+        dx,dy = self.possible_moves[rnd.randint(0,len(self.possible_moves))]
+        i,j = self.position
+        new_pos = (i+dx, j+dy)
+        if game.isOpen( new_pos ) :
+            self.position = new_pos
+            game.remove_grid( (i,j), self.symbol )
+            game.update_grid( new_pos , self.symbol )
     
-    def encode_Q_State(self, game, state) :
-        return eval("encode_" + self.learning_style + '(game, state)')
-
-    def isOpen(self , game, new_state : tuple ) :
-        a,b = new_state
-        if (not (0<= a < len(game.grid) )
-            or not (0<= b < len(game.grid[0])) ) : 
-            return False
-        if game.grid[a][b] in game.default_objects : return False
-        return True
-    
-    def get_reward(self, game, q_state , new_state, target, time_alive = None ) :
-        if self.type == 'seeker' : return self.get_reward_seeker(game, q_state, new_state, target)
-        return self.get_reward_hider(game, q_state, new_state, target, time_alive)
+    def encode_Q_State(self, game, position, target_pos = (None,None)) : # move to encoding class
+        return eval("encode_" + self.learning_style + '(game, position, target_pos=target_pos)')
 
 
-    def get_reward_seeker(self, game, q_state , new_state, target) :
-        x,y = new_state
-        if game.grid[x][y] == target : 
+class seeker( agent ) :
+    def __init__( self, 
+                position : tuple = (None,None),
+                symbol : set = {'S'}
+                color : str = 'red',
+                gif : str = None,
+                special_moves : dict = {},
+                Q_table : q_table = q_table() ) :
+        agent().__init__(self,
+                        position = postion,
+                        symbol = symbol
+                        color =color,
+                        gif = gif)
+        for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
+        self.Q_table = Q_table
+
+    def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
+        if game.contains( self.position , target ) : 
             return 1000, True
-        if target in q_state : return 100, False
-        if not self.isOpen(game, (x,y)) : return - 10, False
+        if game.contains( new_pos , target ) : 
+            return 1000, True
+        if not game.isOpen( new_pos ) : return -50, False
+        if any(v in q_state for v in target) : return 100, False
         return 0, False
-    def get_reward_hider(self, game, q_state , new_state, target, time_alive) :
-        x,y = new_state
-        if (x,y) == target : 
+
+
+class runner( agent ) :
+    def __init__( self, 
+                position : tuple = (None,None),
+                symbol : set = {'R'}
+                color : str = 'blue',
+                gif : str = None,
+                special_moves : dict = {},
+                Q_table : q_table = q_table() ) :
+        agent().__init__(self,
+                        position = postion,
+                        symbol = symbol
+                        color =color,
+                        gif = gif)
+        for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
+        self.Q_table = Q_table
+
+    def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
+        if game.contains( self.position , target ) : 
             return -1000, True
-        if target in q_state : return -100, False
-        if not self.isOpen(game, (x,y)) : return - 10, False
-        return 1, False
+        if game.contains( new_pos , target ) : 
+            return -1000, True
+        if not game.isOpen( new_pos ) : return -50, False
+        if any(v in q_state for v in target) : return -60, False
+        return 0, False
 
 
 
-def encode_basic(game, pos : tuple, size = 3) :
+def encode_basic(game, pos : tuple, size = 3, target_pos = (None,None)) :
     #  make mask with basic game objects, center mask at position
     #  overlay mask with image.
     mask = [[game.default_objects[0] for j in range(size)] for i in range(size)]
@@ -153,6 +125,23 @@ def encode_basic(game, pos : tuple, size = 3) :
     return tuple(
         [item for sublist in mask for item in sublist]
     )
+
+
+def encode_basic_tree( game, pos : tuple, target_pos, size = 3,  ) :
+    state = encode_basic(game, pos, size)
+    x,y = pos
+    a,b = target_pos
+    modx = '-1'
+    mody = '-1'
+    if a >= x :
+        modx = '1'
+    if b >= y :
+        mody = '1'
+    return state + (modx ,  mody)
+
+
+
+
 
 
 

@@ -30,7 +30,7 @@ class GUI(tk.Tk) :
     def demo(self, game,
             agents,
             game_lenth = 100,
-            epsilon = 1,
+            epsilon = 0,
             animation_refresh_seconds=0.02) :
 
         characters = []
@@ -51,6 +51,8 @@ class GUI(tk.Tk) :
             for i in range(len(game.grid))
         ]
         for A in agents :
+                A.state = None
+                A.start(game)
                 a,b = A.state
                 characters += [self.canvas.create_oval((b/n2)*self.size[0],
                     (a/n1)*self.size[1],
@@ -67,7 +69,11 @@ class GUI(tk.Tk) :
 
 
                 x,y = A.state
-                encoding_state = A.encode_Q_State(game, A.state)
+                if A.type == 'seeker' :
+                    encoding_state = A.encode_Q_State(game, A.state, target_pos=agents[1].state)
+                else :
+                    encoding_state = A.encode_Q_State(game, A.state, target_pos=agents[0].state)
+
                 action = A.q_table.getAction( encoding_state )
                 action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
                 new_state, _ = A.q_table.getNewState(game, action, A.state )
