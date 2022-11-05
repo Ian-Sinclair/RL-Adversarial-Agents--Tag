@@ -1,7 +1,7 @@
 
 from base64 import encode
 from cmath import inf
-from q-table import q_table
+from qtable import q_table
 import random as rnd
 from typing import List
 import numpy as np
@@ -11,7 +11,7 @@ from tkinter import *
 class agent :
     def __init__(self,
                 position : tuple = (None,None),
-                symbol : set = {'A'}
+                symbol : set = {'A'},
                 color : str = 'black',
                 gif : str = None ) :
             self.possible_moves = { 'North' : (0,1),
@@ -58,14 +58,14 @@ class agent :
 class seeker( agent ) :
     def __init__( self, 
                 position : tuple = (None,None),
-                symbol : set = {'S'}
+                symbol : set = {'S'},
                 color : str = 'red',
                 gif : str = None,
                 special_moves : dict = {},
                 Q_table : q_table = q_table() ) :
         agent().__init__(self,
-                        position = postion,
-                        symbol = symbol
+                        position = position,
+                        symbol = symbol,
                         color =color,
                         gif = gif)
         for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
@@ -84,14 +84,14 @@ class seeker( agent ) :
 class runner( agent ) :
     def __init__( self, 
                 position : tuple = (None,None),
-                symbol : set = {'R'}
+                symbol : set = {'R'},
                 color : str = 'blue',
                 gif : str = None,
                 special_moves : dict = {},
                 Q_table : q_table = q_table() ) :
         agent().__init__(self,
-                        position = postion,
-                        symbol = symbol
+                        position = position,
+                        symbol = symbol,
                         color =color,
                         gif = gif)
         for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
