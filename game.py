@@ -32,7 +32,7 @@ class game( ) :
         if len(self.default_objects) == 0 : return [[self.emptySpace.symbol]*self.size[0]]*self.size[1]
         prob = [1-self.walls_prob ] + [self.walls_prob/len(self.default_objects) ]*len(self.default_objects)
         grid = [[
-                np.random.choice(self.all_symbols, p = prob)
+                np.random.choice(self.all_symbols, p = prob).copy()
                 for j in range(self.size[0])] 
             for i in range(self.size[1])
         ]
@@ -47,6 +47,7 @@ class game( ) :
     def update_grid( self, position, value ) :
         if type(value) != type(set()) : value = set([value])
         i,j = position
+        #print(i,j)
         self.grid[i][j].update(value)
     
     def remove_grid( self , position, value ) :
@@ -65,7 +66,7 @@ class game( ) :
         if (not (0<= a < len(self.grid) )
             or not (0<= b < len(self.grid[0])) ) : 
             return False
-        if any(x in self.default_symbols for x in list(self.grid[a][b])) : return False
+        if any(x in self.default_symbols[0] for x in list(self.grid[a][b])) : return False
         return True
 
 

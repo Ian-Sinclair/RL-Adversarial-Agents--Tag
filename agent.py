@@ -27,7 +27,7 @@ class agent :
 
     def start_position(self, game) :
         i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
-        while (game.grid[i][j] != game.emptySpace.symbol
+        while (list(game.emptySpace.symbol)[0] not in game.grid[i][j]
                 and game.grid[i][j] != None ) : 
                 i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
         self.position = (i,j)
@@ -48,7 +48,10 @@ class agent :
         new_pos = (i+dx, j+dy)
         if game.isOpen( new_pos ) :
             self.position = new_pos
+            #print(game.grid[i][j])
             game.remove_grid( (i,j), self.symbol )
+            #print(game.grid[i][j])
+            #print('--------')
             game.update_grid( new_pos , self.symbol )
     
     def encode_Q_State(self, game, position, target_pos = (None,None)) : # move to encoding class

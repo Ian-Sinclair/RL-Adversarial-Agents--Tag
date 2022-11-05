@@ -81,7 +81,7 @@ class GUI(tk.Tk) :
         for A in agents :
             A.start_position(game)
         return [
-            self.draw_object( game, A , A.position[0] , A.position[1] ) for A in agents
+            self.draw_object( game, A , A.position[1] , A.position[0] ) for A in agents
         ]
 
     
@@ -100,26 +100,25 @@ class GUI(tk.Tk) :
     
     def demo_random(self,
             game, 
-            seekers,
-            runners, 
+            seekers : list,
+            runners : list, 
             game_length = 100,
             epsilon = 0,
             animation_refresh_seconds = 0.02) :
             print("Agents Will Preform Random Movements")
             self.root.wait_visibility()  # Saves animation frames for window origination
-            lines = self.draw_grid( game )  #  draws grid lines
+            #lines = self.draw_grid( game )  #  draws grid lines
             rectangels = self.draw_defaultObjects( game )
             char_seekers = self.draw_agent( game , seekers )
             char_runners = self.draw_agent( game , runners )
 
             for i in range(game_length) :
-                for A,Ob in zip(seekers + runners,char_seekers + char_runners) :
+                for A,Ob in zip(seekers + runners , char_seekers + char_runners) :
                     a,b = A.position
                     self.canvas.moveto(Ob, (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                     self.root.update()
                     time.sleep(animation_refresh_seconds)
                     A.moveRandom(game)
-                    #print('--------------------------------------')
             self.root.destroy()
             self.root.mainloop()
 
@@ -227,7 +226,7 @@ class GUI(tk.Tk) :
 
 def test_GUI_Random() :
     print('Demoing Random Game')
-    q = game.game((5,8), walls_prob=0.3)
+    q = game.game((15,15), walls_prob=0.3)
     q.print_game()
     red = agent(q, symbol = {"R"}, color = 'red')
     blue = agent(q, symbol = {"B"}, color = 'green')
