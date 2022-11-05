@@ -14,12 +14,14 @@ class game( ) :
                 walls_prob = 0 , 
                 fillFunc = 'randomGrid',
                 empty_space = object.empty(),
-                default_objects = [ object.wall() ] ) :
+                default_objects = [ object.wall() ],
+                background_color = 'cyan' ) :
 
         self.size = size
         self.walls_prob = walls_prob
         self.emptySpace = empty_space
         self.default_objects = default_objects
+        self.background_color = background_color
         self.default_symbols = [a.symbol for a in default_objects]
         self.all_objects = [self.emptySpace]+self.default_objects
         self.all_symbols = [a.symbol for a in self.all_objects] # set(set(str))

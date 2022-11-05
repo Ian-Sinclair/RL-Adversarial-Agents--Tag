@@ -1,7 +1,7 @@
 class q_table() :
     def __init__(self, 
                 func = 'basic',
-                moves = possible_moves) :
+                moves : list = []) :
         self.possible_moves = moves
         self.q_table = eval('self.'+func + '()')
     

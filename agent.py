@@ -1,7 +1,7 @@
 
 from base64 import encode
 from cmath import inf
-from qtable import q_table
+from Qtable import q_table
 import random as rnd
 from typing import List
 import numpy as np
@@ -20,6 +20,7 @@ class agent :
                                     'West' : (-1,0), 
                                     'Stay_still' : (0,0) }
             self.position = position
+            if type(symbol) != type({0}) : symbol = {symbol}
             self.symbol = symbol   #  set
             self.color = color
             self.gif = gif
@@ -27,11 +28,10 @@ class agent :
     def start_position(self, game) :
         i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
         while (game.grid[i][j] != game.emptySpace.symbol
-                and (i,j) not in self.active_start_states
                 and game.grid[i][j] != None ) : 
                 i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
         self.position = (i,j)
-        game.update_grid( self.position , self.agent_symbol ) 
+        game.update_grid( self.position , self.symbol ) 
 
 
     def getNewPosition(self, game , action : str, position : tuple) :
@@ -43,7 +43,7 @@ class agent :
         return (x,y), action
     
     def moveRandom(self, game) :  # Need to finish functionality for this method...
-        dx,dy = self.possible_moves[rnd.randint(0,len(self.possible_moves))]
+        dx,dy = self.possible_moves[np.random.choice(list(self.possible_moves.keys()))]
         i,j = self.position
         new_pos = (i+dx, j+dy)
         if game.isOpen( new_pos ) :
@@ -62,14 +62,14 @@ class seeker( agent ) :
                 color : str = 'red',
                 gif : str = None,
                 special_moves : dict = {},
-                Q_table : q_table = q_table() ) :
+                Q_table : q_table = None ) :
         agent().__init__(self,
                         position = position,
                         symbol = symbol,
                         color =color,
                         gif = gif)
         for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
-        self.Q_table = Q_table
+        self.Q_table = Q_table(moves = self.possible_moves.keys())
 
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
         if game.contains( self.position , target ) : 
