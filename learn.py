@@ -158,19 +158,19 @@ def Tag_training(strat = 'basic') :
 
     print('Small Game')
     seekers, runners = basic_Q_learning(q , [red], [blue], 
-                                        game_size=(6,6), 
+                                        game_size=(8,8), 
                                         game_length=200,
                                         num_epocs=20000, 
-                                        walls_prob=0.2,
+                                        walls_prob=0.1,
                                         animation_refresh_seconds=0.045, 
                                         random_games = True)
-    '''
+    
     print('Medium Game')
     seekers, runners = basic_Q_learning(q , seekers, runners, 
                                         game_size=(10,10), 
                                         game_length=200,
                                         num_epocs=20000, 
-                                        walls_prob=0.2,
+                                        walls_prob=0.1,
                                         animation_refresh_seconds=0.045, 
                                         random_games = True)
     print('Large Game')
@@ -178,11 +178,11 @@ def Tag_training(strat = 'basic') :
                                         game_size=(15,15), 
                                         game_length=200,
                                         num_epocs=20000, 
-                                        walls_prob=0.2,
+                                        walls_prob=0.1,
                                         animation_refresh_seconds=0.045, 
                                         random_games = True)
 
-    '''
+    
 
 
 #single_goal_training()
