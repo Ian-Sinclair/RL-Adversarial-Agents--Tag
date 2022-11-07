@@ -1,3 +1,8 @@
+"""
+        Stores object classes for default objects and empty space.
+"""
+
+
 class object :
     def __init__( self, 
                 symbol : set = set(' '),

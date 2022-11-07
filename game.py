@@ -1,5 +1,7 @@
 """
-    Game attribute classes to control game objects and environment.
+    Game attribute classes to control objects and environment. 
+    All position information for agents/objects is stored in game class object.
+    Works like a grid -> list[ list[ set{ string } ] ]
 """
 import agent as char
 #from object import *
@@ -22,13 +24,13 @@ class game( ) :
         self.emptySpace = empty_space
         self.default_objects = default_objects
         self.background_color = background_color
-        self.default_symbols = [a.symbol for a in default_objects]
-        self.all_objects = [self.emptySpace]+self.default_objects
+        self.default_symbols = [a.symbol for a in default_objects]  # list of default object sets.
+        self.all_objects = [self.emptySpace]+self.default_objects  #  list of all object symbols.
         self.all_symbols = [a.symbol for a in self.all_objects] # set(set(str))
 
         self.grid = eval('self.' + fillFunc + '()' )
 
-    def randomGrid( self ) :
+    def randomGrid( self ) :  # Randomly adds default obects to grid by some probability distrabution
         if len(self.default_objects) == 0 : return [[self.emptySpace.symbol]*self.size[0]]*self.size[1]
         prob = [1-self.walls_prob ] + [self.walls_prob/len(self.default_objects) ]*len(self.default_objects)
         grid = [[
@@ -44,25 +46,25 @@ class game( ) :
         return grid
 
 
-    def update_grid( self, position, value ) :
+    def update_grid( self, position, value ) :  #  Adds a string type value to the current set of strings at grid location (position)
         if type(value) != type(set()) : value = set([value])
         i,j = position
         #print(i,j)
         self.grid[i][j].update(value)
     
-    def remove_grid( self , position, value ) :
+    def remove_grid( self , position, value ) : #  Removes an element from grid at locatino position
         if type(value) != type(set()) : value = set([value])
         i,j = position
         self.grid[i][j] = self.grid[i][j] - value
     
-    def contains( self , position , value ) :
+    def contains( self , position , value ) : #  Primitive to check if value is contained at grid location position
         x,y = position
         if type(value) == type('') : value = {value}
         if any(v in self.grid[x][y] for v in value) : 
             return True
         return False
     
-    def isOpen(self , position : tuple ) :
+    def isOpen(self , position : tuple ) : #  Primitive checks of position is valid and/or occupied by default object.
         a,b = position
         if (not (0<= a < len(self.grid) )
             or not (0<= b < len(self.grid[0])) ) : 
@@ -74,29 +76,9 @@ class game( ) :
         return True
 
 
-    def print_game(self) :
+    def print_game(self) :  # prints game board.
         [print(''.join([list(x)[0] for x in row])) for row in self.grid]
 
-'''
-for i in range(100) :
-    q = game((20,20), walls_prob=0.1, playable=True)
-
-    red = char.agent(q, agent_symbol = "R", agent_color = 'red')
-    blue = char.agent(q, agent_symbol = "B", agent_color = 'green')
-
-
-    play = GUI.GUI()
-    play.play_game(q, [red,blue], animation_refresh_seconds=0.02)
-'''
-
-'''
-for i in range(50) :
-    red.moveRandom(q)
-    Blue.moveRandom(q)
-
-    print('--------------------------------------')
-    q.print_game()
-'''
 
 def test_game_boards() :
     print('Printing Random Game Boards')

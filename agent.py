@@ -1,4 +1,7 @@
-
+'''
+    Agent classes contains information availiable to each agent
+    including Q table management. And information encoding.
+'''
 from base64 import encode
 from cmath import inf
 from Qtable import q_table
@@ -93,6 +96,7 @@ class seeker( agent ) :
         super().__init__(self,
                         symbol = symbol,
                         color =color,
+                        learning_style = learning_style,
                         gif = gif)
         self.type = 'seeker'
         self.possible_moves = super().get_possible_moves()
@@ -102,12 +106,12 @@ class seeker( agent ) :
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
         if game.contains( self.position , target ) : 
             return 10000, True
-        #if game.contains( new_pos , target ) : 
-        #    return 1000, True
+        if game.contains( new_pos , target ) : 
+            return 10000, True
         if game.isOpen( new_pos ) == False : 
-            return -50, False
+            return -10, False
         if any(list(target)[0] in q for q in q_state) : 
-            return 100, False
+            return 50, False
         return -1, False
 
 
@@ -187,11 +191,6 @@ class fixed_goal( agent ) :
 
 
 
-
-
-
-
-
 def encode_basic(game, pos : tuple, size = 3, target_pos : tuple = (None,None)) :
     #  make mask with basic game objects, center mask at position
     #  overlay mask with image.
@@ -222,6 +221,7 @@ def encode_basic_tree( game, pos : tuple, target_pos, size = 3,  ) :
         modx = '1'
     if b >= y :
         mody = '1'
+    #return (modx ,  mody)
     return state + (modx ,  mody)
 
 
