@@ -1,6 +1,6 @@
 
 import random as rnd
-from agent import agent
+from agent import agent, seeker, runner
 import game
 import numpy as np
 import tkinter as tk 
@@ -93,7 +93,7 @@ class GUI(tk.Tk) :
              epsilon = 0,
              strategy : str = 'random',
              animation_refresh_seconds = 0.02) -> None :
-        function_links = ['agent_based', 'random']
+        function_links = ['agent_strategy', 'random']
         if strategy not in  function_links:
             raise ValueError("unsupported function: strategy must be in: " + str(function_links))
         eval('self.demo_' + strategy + '(game, seekers, runners, game_length, epsilon, animation_refresh_seconds)' )
@@ -107,7 +107,7 @@ class GUI(tk.Tk) :
             animation_refresh_seconds = 0.02) :
             print("Agents Will Preform Random Movements")
             self.root.wait_visibility()  # Saves animation frames for window origination
-            #lines = self.draw_grid( game )  #  draws grid lines
+            #  lines = self.draw_grid( game )  #  draws grid lines
             rectangels = self.draw_defaultObjects( game )
             char_seekers = self.draw_agent( game , seekers )
             char_runners = self.draw_agent( game , runners )
@@ -121,6 +121,119 @@ class GUI(tk.Tk) :
                     A.moveRandom(game)
             self.root.destroy()
             self.root.mainloop()
+
+    def play_game( self, 
+            game,
+            seekers,
+            runners,
+            seekers_moves,
+            runners_move,
+            animation_refresh_seconds = 0.02
+            ) :
+            self.root.wait_visibility()  # Saves animation frames for window origination
+            #  lines = self.draw_grid( game )  #  draws grid lines
+            rectangels = self.draw_defaultObjects( game )
+            char_seekers = self.draw_agent( game , seekers )
+            char_runners = self.draw_agent( game , runners )
+            for S_pos,R_pos in zip( seekers_moves, runners_move ) :
+                a,b = S_pos
+                self.canvas.moveto(char_seekers[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
+                self.root.update()
+                time.sleep(animation_refresh_seconds)
+                a,b = R_pos
+                self.canvas.moveto(char_runners[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
+                self.root.update()
+                time.sleep(animation_refresh_seconds)
+            self.root.destroy()
+            self.root.mainloop()
+
+
+
+    def demo_agent_strategy(self,
+            game, 
+            seekers : list,
+            runners : list, 
+            game_length = 100,
+            epsilon = 0,
+            animation_refresh_seconds = 0.02) :
+            for A in seekers + runners :
+                A.start_position(game)
+            self.root.wait_visibility()  # Saves animation frames for window origination
+            #  lines = self.draw_grid( game )  #  draws grid lines
+            rectangels = self.draw_defaultObjects( game )
+            char_seekers = self.draw_agent( game , seekers )
+            char_runners = self.draw_agent( game , runners )
+            
+            stop = False
+            a_table = []
+            print(game_length)
+            for i in range(game_length) :
+                if stop == True : break
+                for A,Ob in zip(seekers + runners , char_seekers + char_runners) :
+                    a,b = A.position
+                    self.canvas.moveto(Ob, (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
+                    self.root.update()
+                    time.sleep(animation_refresh_seconds)
+                seeker_states = []
+                seeker_actions = []
+                seeker_rewards = []
+                seeker_next_positions = []
+                seeker_next_state = []
+
+                runner_states = []
+                runner_actions = []
+                runner_rewards = []
+                runner_next_positions = []
+                runner_next_state = []
+
+                stop = False
+
+
+                for A in seekers : seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position) ) #  Need to refactor for list of target agents.
+                for A in runners : runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position) )
+
+                for A,state in zip(seekers, seeker_states) : 
+                    action = A.Q_table.getAction( state )
+                    action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
+                    new_position, action = A.getNewPosition(game, action, A.position )
+                    seeker_next_positions.append( new_position )
+                    A.moveTO(game, new_position)
+                    seeker_actions.append( action )
+                    
+                
+                for A,state in zip(runners, runner_states) : 
+                    action = A.Q_table.getAction( state )
+                    action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
+                    new_position, action = A.getNewPosition(game, action, A.position )
+                    runner_next_positions.append( new_position )
+                    A.moveTO(game, new_position)
+                    runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
+                    runner_actions.append( action )
+                    reward, end =  A.get_reward(game , runner_next_state[-1] , new_position , seekers[0].symbol)
+                    runner_rewards.append( reward )
+                    if end == True :
+                        print('Runner')
+                        stop = True
+                
+                for A, new_position in zip( seekers, seeker_next_positions ) :
+                    seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position))
+                    reward, end =  A.get_reward(game , seeker_next_state[-1] , new_position , runners[0].symbol)
+                    seeker_rewards.append( reward )
+                    if end == True :
+                        print('Seeker')
+                        stop = True
+            for A,Ob in zip(runners + seekers , char_runners + char_seekers) :
+                a,b = A.position
+                self.canvas.moveto(Ob, (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
+                self.root.update()
+                time.sleep(1)
+            #print(a_table)
+            print('Demo:  Game length: ' + str(i))
+            print('Seeker :' + str(seekers[0].position))
+            print('Runner :' + str(runners[0].position))
+            self.root.destroy()
+            self.root.mainloop()
+
 
 
 
@@ -231,7 +344,7 @@ def test_GUI_Random() :
     red = agent(q, symbol = {"R"}, color = 'red')
     blue = agent(q, symbol = {"B"}, color = 'green')
     play = GUI(q)
-    play.demo(q, seekers = [red], runners = [blue], game_length=200 ,animation_refresh_seconds=0.08)
+    play.demo(q, seekers = [red], runners = [blue], game_length=600 ,animation_refresh_seconds=0.04)
         
 
 

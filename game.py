@@ -58,7 +58,8 @@ class game( ) :
     def contains( self , position , value ) :
         x,y = position
         if type(value) == type('') : value = {value}
-        if any(v in self.grid[x][y] for v in value) : return True
+        if any(v in self.grid[x][y] for v in value) : 
+            return True
         return False
     
     def isOpen(self , position : tuple ) :
@@ -66,7 +67,10 @@ class game( ) :
         if (not (0<= a < len(self.grid) )
             or not (0<= b < len(self.grid[0])) ) : 
             return False
-        if any(x in self.default_symbols[0] for x in list(self.grid[a][b])) : return False
+        if any(x in self.default_symbols[0] for x in list(self.grid[a][b])) :
+            if len(self.default_symbols[0]) > 1 : print(self.default_symbols[0])
+            #print(self.default_symbols[0])
+            return False
         return True
 
 
