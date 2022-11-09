@@ -175,7 +175,7 @@ class GUI(tk.Tk) :
                 self.root.update()
                 time.sleep(animation_refresh_seconds)
                 #if collect_GIF : self.save_as_png(self.canvas, 'image ' + str(i), 'testGame/')
-                if collect_GIF :  images += [ self.to_Image(self.canvas, 'image ' + str(i), 'testGame/') ]
+                if collect_GIF :  images += [ self.to_Image(self.canvas, FileName + str(i), 'testGame/') ]
             self.root.destroy()
             self.root.mainloop()
             if collect_GIF : return images
@@ -183,7 +183,9 @@ class GUI(tk.Tk) :
     def save_as_GIF(self, images : list, filename, path) :
         if not os.path.exists(path):
             os.makedirs(path)
-        images[0].save( path + filename + '.gif', save_all=True, append_images=images[1:], optimize=True,duration=100, loop=1)
+        images[0].save( path + filename + '.gif', save_all=True, append_images=images[1:], optimize=False,duration=100, loop=1)
+        for img in images :
+            img.close()
 
     def to_Image(self, canvas, filename, path) :
         if not os.path.exists('epsDumping/') :

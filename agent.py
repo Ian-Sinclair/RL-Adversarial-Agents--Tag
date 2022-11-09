@@ -139,8 +139,8 @@ class runner( agent ) :
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
         if game.contains( self.position , target ) : 
             return -10000, True
-        #if game.contains( new_pos , target ) : 
-        #    return -10000, True
+        if game.contains( new_pos , target ) : 
+            return -10000, True
         if not game.isOpen( new_pos ) : 
             return -50, False
         if any(list(target)[0] in q for q in q_state) : 
