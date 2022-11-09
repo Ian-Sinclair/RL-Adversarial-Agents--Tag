@@ -10,6 +10,7 @@ from typing import List
 import numpy as np
 import tkinter as tk 
 from tkinter import *
+import pickle
 
 class agent :
     def __init__(self,
@@ -57,6 +58,7 @@ class agent :
             x,y = tuple([ sum(tup) for tup in zip(position, self.possible_moves[action] ) ])
         return (x,y), out_action
         #return self.position, out_action
+
     
     def moveRandom(self, game) :  # Need to finish functionality for this method...
         dx,dy = self.possible_moves[np.random.choice(list(self.possible_moves.keys()))]
@@ -111,7 +113,7 @@ class seeker( agent ) :
         if game.isOpen( new_pos ) == False : 
             return -10, False
         if any(list(target)[0] in q for q in q_state) : 
-            return 50, False
+            return 45, False
         return -1, False
 
 
@@ -138,7 +140,7 @@ class runner( agent ) :
         if game.contains( self.position , target ) : 
             return -10000, True
         #if game.contains( new_pos , target ) : 
-        #    return -1000, True
+        #    return -10000, True
         if not game.isOpen( new_pos ) : 
             return -50, False
         if any(list(target)[0] in q for q in q_state) : 

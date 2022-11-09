@@ -10,6 +10,8 @@ import numpy as np
 import tkinter as tk 
 from tkinter import *
 import time
+from PIL import ImageGrab, Image
+import ghostscript
 #  from PIL import Image, ImageTk
 
 
@@ -22,7 +24,24 @@ class GUI(tk.Tk) :
                  ) :
         self.root = tk.Tk()
         self.root.title(title)
-        self.root.geometry(root_size)
+        #self.root.geometry(root_size)
+
+        w = 600 # width for the Tk root
+        h = 600 # height for the Tk root
+
+        # get screen width and height
+        ws = self.root.winfo_screenwidth() # width of the screen
+        hs = self.root.winfo_screenheight() # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+
+        # set the dimensions of the screen 
+        # and where it is placed
+        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+
         self.size = [int(a) for a in root_size.split('x')]
         self.cx,self.cy = 100,100  # This may be wrong...
         self.canvas = Canvas(self.root, width = self.cx, height = self.cy, bg = game.background_color)
@@ -88,7 +107,15 @@ class GUI(tk.Tk) :
             self.draw_object( game, A , A.position[1] , A.position[0] ) for A in agents
         ]
 
-    
+    def saveImage(self, savelocation):
+        widget = self.canvas
+        x = self.root.winfo_rootx() + widget.winfo_x()
+        y = self.root.winfo_rooty() + widget.winfo_y()
+        x1 = x + widget.winfo_width()
+        y1 = y + widget.winfo_height()
+        ImageGrab.grab().crop((x,y,x1,y1)).save(savelocation)
+
+
     def demo(self,
              game, 
              seekers : list,
@@ -131,7 +158,7 @@ class GUI(tk.Tk) :
             seekers,
             runners,
             seekers_moves,
-            runners_move,
+            runners_moves,
             animation_refresh_seconds = 0.02
             ) :
             self.root.wait_visibility()  # Saves animation frames for window origination
@@ -139,7 +166,7 @@ class GUI(tk.Tk) :
             rectangels = self.draw_defaultObjects( game )
             char_seekers = self.draw_agent( game , seekers )
             char_runners = self.draw_agent( game , runners )
-            for S_pos,R_pos in zip( seekers_moves, runners_move ) :
+            for S_pos,R_pos in zip( seekers_moves, runners_moves ) :
                 a,b = S_pos
                 self.canvas.moveto(char_seekers[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                 self.root.update()
@@ -148,10 +175,16 @@ class GUI(tk.Tk) :
                 self.canvas.moveto(char_runners[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                 self.root.update()
                 time.sleep(animation_refresh_seconds)
+                self.save_as_png(self.canvas, 'image')
+                #self.saveImage('image.png')
             self.root.destroy()
             self.root.mainloop()
 
-
+    def save_as_png(self, canvas, filename) :
+        canvas.postscript(file = filename+'.eps')
+        img = Image.open(filename + '.eps')
+        #img.save(filename +'.png', 'png')
+        img.show()
 
     def demo_agent_strategy(self,
             game, 
@@ -160,84 +193,29 @@ class GUI(tk.Tk) :
             game_length = 100,
             epsilon = 0,
             animation_refresh_seconds = 0.02) :
+            '''
             for A in seekers + runners :
                 A.start_position(game)
-            self.root.wait_visibility()  # Saves animation frames for window origination
-            #  lines = self.draw_grid( game )  #  draws grid lines
-            rectangels = self.draw_defaultObjects( game )
-            char_seekers = self.draw_agent( game , seekers )
-            char_runners = self.draw_agent( game , runners )
             
-            stop = False
-            a_table = []
-            print(game_length)
-            for i in range(game_length) :
-                if stop == True : break
-                for A,Ob in zip(seekers + runners , char_seekers + char_runners) :
-                    a,b = A.position
-                    self.canvas.moveto(Ob, (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
-                    self.root.update()
-                    time.sleep(animation_refresh_seconds)
-                seeker_states = []
-                seeker_actions = []
-                seeker_rewards = []
-                seeker_next_positions = []
-                seeker_next_state = []
-
-                runner_states = []
-                runner_actions = []
-                runner_rewards = []
-                runner_next_positions = []
-                runner_next_state = []
-
-                stop = False
-
-
-                for A in seekers : seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position) ) #  Need to refactor for list of target agents.
-                for A in runners : runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position) )
-
-                for A,state in zip(seekers, seeker_states) : 
-                    action = A.Q_table.getAction( state )
-                    action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
-                    new_position, action = A.getNewPosition(game, action, A.position )
-                    seeker_next_positions.append( new_position )
-                    A.moveTO(game, new_position)
-                    seeker_actions.append( action )
-                    
-                
-                for A,state in zip(runners, runner_states) : 
-                    action = A.Q_table.getAction( state )
-                    action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
-                    new_position, action = A.getNewPosition(game, action, A.position )
-                    runner_next_positions.append( new_position )
-                    A.moveTO(game, new_position)
-                    runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
-                    runner_actions.append( action )
-                    reward, end =  A.get_reward(game , runner_next_state[-1] , new_position , seekers[0].symbol)
-                    runner_rewards.append( reward )
-                    if end == True :
-                        print('Runner')
-                        stop = True
-                
-                for A, new_position in zip( seekers, seeker_next_positions ) :
-                    seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position))
-                    reward, end =  A.get_reward(game , seeker_next_state[-1] , new_position , runners[0].symbol)
-                    seeker_rewards.append( reward )
-                    if end == True :
-                        print('Seeker')
-                        stop = True
-            for A,Ob in zip(runners + seekers , char_runners + char_seekers) :
-                a,b = A.position
-                self.canvas.moveto(Ob, (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
-                self.root.update()
-                time.sleep(1)
-            #print(a_table)
-            print('Demo:  Game length: ' + str(i))
-            print('Seeker :' + str(seekers[0].position))
-            print('Runner :' + str(runners[0].position))
-            self.root.destroy()
-            self.root.mainloop()
-
+            game_info = learn.run_game_instance(
+                                    game,
+                                    seekers,
+                                    runners,
+                                    game_length,
+                                    epsilon,
+                                update_strategy=False
+                                )
+            seekers_moves = game_info['Seeker Positions']
+            runners_moves = game_info['Runner Positions']
+            self.play_game(
+                    game,
+                    seekers,
+                    runners,
+                    seekers_moves,
+                    runners_moves,
+                    animation_refresh_seconds
+                )
+            '''
 
 def test_GUI_Random() :
     print('Demoing Random Game')
