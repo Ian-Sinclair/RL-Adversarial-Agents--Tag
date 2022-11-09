@@ -120,7 +120,8 @@ def basic_Q_learning(
     walls_prob=0.25,
     epsilon = 0.5,
     animation_refresh_seconds=0.02,
-    random_games = True
+    random_games = True,
+    collect_GIF = False
 ) :
     temp = epsilon
     q = game
@@ -159,7 +160,7 @@ def basic_Q_learning(
                 + '\t' + 'Game Length: ' + str(ii))
         if epoc%400 == 0: 
             play = GUI.GUI(q)
-            play.play_game(q, seekers=seekers, runners=runners, seekers_moves=seeker_positions,runners_moves=runner_positions, animation_refresh_seconds=animation_refresh_seconds )
+            play.play_game(q, seekers=seekers, runners=runners, seekers_moves=seeker_positions,runners_moves=runner_positions, animation_refresh_seconds=animation_refresh_seconds , collect_GIF = collect_GIF )
 
     return seekers, runners
         
@@ -186,11 +187,12 @@ def Tag_training(strat = 'basic') :
     print('Small Game')
     seekers, runners = basic_Q_learning(q , [red], [blue], 
                                         game_size=(7,7), 
-                                        game_length=4,
-                                        num_epocs=1, 
+                                        game_length=200,
+                                        num_epocs=1000, 
                                         walls_prob=0.1,
                                         animation_refresh_seconds=0.045, 
-                                        random_games = True)
+                                        random_games = True
+                                        )
     '''
     print('Medium Game')
     seekers, runners = basic_Q_learning(q , seekers, runners, 
@@ -209,8 +211,8 @@ def Tag_training(strat = 'basic') :
                                         animation_refresh_seconds=0.045, 
                                         random_games = True)
     '''                                    
-    #saveAgentToFile(seekers[0] , filename='Seeker.pkl')
-    #saveAgentToFile(runners[0] , filename='Runner.pkl')
+    saveAgentToFile(seekers[0] , filename='Seeker.pkl')
+    saveAgentToFile(runners[0] , filename='Runner.pkl')
 
 
 
@@ -230,7 +232,8 @@ def demoAgents(seekers, runners,
                 epsilon = 0.5,
                 animation_refresh_seconds=0.02,
                 num_games = 1,
-                Random_games = True
+                Random_games = True,
+                collect_GIF = False
                 ) :
     if all(isinstance(item, str) for item in seekers) :
         seekers = loadAgents(seekers)
@@ -261,7 +264,8 @@ def demoAgents(seekers, runners,
                 runners,
                 seekers_moves,
                 runners_moves,
-                animation_refresh_seconds
+                animation_refresh_seconds,
+                collect_GIF = True
             )
 
 
@@ -273,9 +277,9 @@ def saveAgentToFile( obj , filename ) :
 #single_goal_training()
 
 def testAgents() :
-    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 50)
+    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 1,collect_GIF = True)
 
 Tag_training(strat = 'basic_tree')
 
-#testAgents()
+testAgents()
 

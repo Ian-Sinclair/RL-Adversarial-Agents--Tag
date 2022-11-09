@@ -3,6 +3,7 @@
 '''
 
 
+import os
 import random as rnd
 from agent import agent, seeker, runner
 import game
@@ -24,24 +25,7 @@ class GUI(tk.Tk) :
                  ) :
         self.root = tk.Tk()
         self.root.title(title)
-        #self.root.geometry(root_size)
-
-        w = 600 # width for the Tk root
-        h = 600 # height for the Tk root
-
-        # get screen width and height
-        ws = self.root.winfo_screenwidth() # width of the screen
-        hs = self.root.winfo_screenheight() # height of the screen
-
-        # calculate x and y coordinates for the Tk root window
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-
-        # set the dimensions of the screen 
-        # and where it is placed
-        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-
-
+        self.root.geometry(root_size)
         self.size = [int(a) for a in root_size.split('x')]
         self.cx,self.cy = 100,100  # This may be wrong...
         self.canvas = Canvas(self.root, width = self.cx, height = self.cy, bg = game.background_color)
@@ -99,7 +83,15 @@ class GUI(tk.Tk) :
             ]
             for i in range(len(game.grid))
         ]
-    
+
+    def draw_background(self, game) :
+        self.canvas.create_rectangle(0,
+                    0,
+                    self.size[0],
+                    self.size[1],
+                    fill=game.background_color, outline=game.background_color, width=0)
+
+
     def draw_agent(self, game , agents : list) :
         for A in agents :
             A.start_position(game)
@@ -159,14 +151,20 @@ class GUI(tk.Tk) :
             runners,
             seekers_moves,
             runners_moves,
-            animation_refresh_seconds = 0.02
+            animation_refresh_seconds = 0.02,
+            collect_GIF = False,
+            FilePath = None,
+            FileName = None
             ) :
             self.root.wait_visibility()  # Saves animation frames for window origination
             #  lines = self.draw_grid( game )  #  draws grid lines
+            self.draw_background(game)
             rectangels = self.draw_defaultObjects( game )
             char_seekers = self.draw_agent( game , seekers )
             char_runners = self.draw_agent( game , runners )
+            i = 0
             for S_pos,R_pos in zip( seekers_moves, runners_moves ) :
+                i += 1
                 a,b = S_pos
                 self.canvas.moveto(char_seekers[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                 self.root.update()
@@ -175,16 +173,20 @@ class GUI(tk.Tk) :
                 self.canvas.moveto(char_runners[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                 self.root.update()
                 time.sleep(animation_refresh_seconds)
-                self.save_as_png(self.canvas, 'image')
-                #self.saveImage('image.png')
+                if collect_GIF : self.save_as_png(self.canvas, 'image ' + str(i), 'testGame/')
+
             self.root.destroy()
             self.root.mainloop()
 
-    def save_as_png(self, canvas, filename) :
-        canvas.postscript(file = filename+'.eps')
-        img = Image.open(filename + '.eps')
-        #img.save(filename +'.png', 'png')
-        img.show()
+    def save_as_png(self, canvas, filename, path) :
+        if not os.path.exists('epsDumping/'):
+            os.makedirs('epsDumping/')
+        canvas.postscript(file = 'epsDumping/'+filename+'.eps')
+        img = Image.open('epsDumping/'+filename + '.eps')
+        newpath = path
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+        img.save(path+filename +'.png', 'png')
 
     def demo_agent_strategy(self,
             game, 
