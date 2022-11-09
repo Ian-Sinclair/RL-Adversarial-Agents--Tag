@@ -226,7 +226,7 @@ def loadAgents(agentsFileName : list[ str ] ) -> None :
 
 def demoAgents(seekers, runners,
                 game = None,
-                game_length = 100,
+                game_length = 200,
                 game_size = (10,10),
                 walls_prob=0.25,
                 epsilon = 0.5,
@@ -241,6 +241,7 @@ def demoAgents(seekers, runners,
         runners = loadAgents(runners)
     if game == None :
         game = game_(size=game_size, walls_prob=walls_prob)
+    if collect_GIF : gif_games = []
     for _ in range(num_games) :
         if Random_games == True : 
             game = game_(size=game_size, walls_prob=walls_prob)
@@ -258,7 +259,7 @@ def demoAgents(seekers, runners,
         seekers_moves = game_info['Seeker Positions']
         runners_moves = game_info['Runner Positions']
         play = GUI.GUI(game)
-        play.play_game(
+        gif_images = play.play_game(
                 game,
                 seekers,
                 runners,
@@ -267,6 +268,8 @@ def demoAgents(seekers, runners,
                 animation_refresh_seconds,
                 collect_GIF = True
             )
+        if collect_GIF : gif_games += gif_images
+    play.save_as_GIF(gif_games, 'Test_GIF', 'testGame/')
 
 
 
@@ -277,9 +280,9 @@ def saveAgentToFile( obj , filename ) :
 #single_goal_training()
 
 def testAgents() :
-    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 1,collect_GIF = True)
+    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 5, collect_GIF = True)
 
-Tag_training(strat = 'basic_tree')
+#Tag_training(strat = 'basic_tree')
 
 testAgents()
 
