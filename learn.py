@@ -71,19 +71,22 @@ def run_game_instance(
                 runner_next_positions.append( new_position )
                 A.moveTO(game, new_position)
                 runner_positions += [A.position]
-                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
                 runner_actions.append( action )
+            
+            for A, new_position in zip( runners, runner_next_positions ) :
+                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
                 reward, end =  A.get_reward(game , runner_next_state[-1] , new_position , seekers[0].symbol)
                 runner_rewards.append( reward )
                 if end == True :
                     stop = True
-            
+
             for A, new_position in zip( seekers, seeker_next_positions ) :
                 seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position))
                 reward, end =  A.get_reward(game , seeker_next_state[-1] , new_position , runners[0].symbol)
                 seeker_rewards.append( reward )
                 if end == True :
                     stop = True
+
 
             for R in seeker_rewards :
                 seekers_total_reward += R
@@ -181,36 +184,20 @@ def Tag_training(strat = 'basic') :
     q = game_((10,10), walls_prob=0.2)
     red = seeker(q, symbol = {"R"}, color = 'red', learning_style=strat)
     red.Q_table = q_table(moves = red.possible_moves)
-    blue = runner(q, symbol = {"B"}, color = 'blue', learning_style='basic')
+    #blue = runner(q, symbol = {"B"}, color = 'blue', learning_style='basic')
+    #blue.Q_table = q_table(moves = blue.possible_moves)
+    blue = runner(q, symbol = {"B"}, color = 'blue', learning_style=strat)
     blue.Q_table = q_table(moves = blue.possible_moves)
 
     print('Small Game')
     seekers, runners = basic_Q_learning(q , [red], [blue], 
                                         game_size=(7,7), 
                                         game_length=200,
-                                        num_epocs=10000, 
-                                        walls_prob=0.2,
+                                        num_epocs=2000, 
+                                        walls_prob=0.1,
                                         animation_refresh_seconds=0.045, 
                                         random_games = True
-                                        )
-    '''
-    print('Medium Game')
-    seekers, runners = basic_Q_learning(q , seekers, runners, 
-                                        game_size=(10,10), 
-                                        game_length=200,
-                                        num_epocs=10000, 
-                                        walls_prob=0.1,
-                                        animation_refresh_seconds=0.045, 
-                                        random_games = True)
-    print('Large Game')    
-    seekers, runners = basic_Q_learning(q , seekers, runners, 
-                                        game_size=(15,15), 
-                                        game_length=200,
-                                        num_epocs=10000, 
-                                        walls_prob=0.1,
-                                        animation_refresh_seconds=0.045, 
-                                        random_games = True)
-    '''                                    
+                                        )                            
     saveAgentToFile(seekers[0] , filename='Seeker.pkl')
     saveAgentToFile(runners[0] , filename='Runner.pkl')
 
@@ -229,9 +216,9 @@ def demoAgents(seekers, runners,
                 game_length = 200,
                 game_size = (7,7),
                 walls_prob=0.2,
-                epsilon = 0.5,
+                epsilon = 0,
                 animation_refresh_seconds=0.02,
-                num_games = 5,
+                num_games = 25,
                 Random_games = True,
                 collect_GIF = False
                 ) :
@@ -267,7 +254,7 @@ def demoAgents(seekers, runners,
                 seekers_moves,
                 runners_moves,
                 animation_refresh_seconds,
-                collect_GIF = True,
+                collect_GIF = collect_GIF,
                 FileName='Game ' + str(i) + " Image "
             )
         if collect_GIF : gif_games += gif_images
@@ -282,7 +269,7 @@ def saveAgentToFile( obj , filename ) :
 #single_goal_training()
 
 def testAgents() :
-    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 5, collect_GIF = True)
+    demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 20, collect_GIF = False)
 
 Tag_training(strat = 'basic_tree')
 
