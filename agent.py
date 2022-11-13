@@ -40,8 +40,8 @@ class agent :
         while (list(game.emptySpace.symbol)[0] not in game.grid[i][j]
                 and game.grid[i][j] != None ) : 
                 i,j = rnd.randint(0,game.size[1]-1), rnd.randint(0,game.size[0]-1)
-        if self.position != None :
-            game.remove_grid( self.position , self.symbol )
+        #if self.position != None :
+        #    game.remove_grid( self.position , self.symbol )
         self.position = (i,j)
         game.update_grid( self.position , self.symbol ) 
 
@@ -81,6 +81,7 @@ class agent :
 
 
 
+
     
     def encode_Q_State(self, game, position, target_pos = (None,None)) : # move to encoding class
         return eval("encode_" + self.learning_style + '(game, position, target_pos=target_pos)')
@@ -108,13 +109,16 @@ class seeker( agent ) :
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
         if game.contains( self.position , target ) : 
             return 1000, True
-        #if game.contains( new_pos , target ) : 
-        #    return 10000, True
+        if game.contains( new_pos , target ) : 
+            return 10000, True
         if game.isOpen( new_pos ) == False : 
-            return -10, False
+            return -60, False
         if any(list(target)[0] in q for q in q_state) : 
-            return 3, False
-        return -3, False
+            return 20, False
+        return 1, False
+    
+    def print_Qtable(self) :
+        print(self.Q_table.print_Qtable())
 
 
 class runner( agent ) :
@@ -139,13 +143,16 @@ class runner( agent ) :
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
         if game.contains( self.position , target ) : 
             return -1000, True
-        #if game.contains( new_pos , target ) : 
-        #    return -10000, True
+        if game.contains( new_pos , target ) : 
+            return -1000, True
         if not game.isOpen( new_pos ) : 
             return -10, False
         if any(list(target)[0] in q for q in q_state) : 
             return -60, False
-        return 1, False
+        return 3, False
+    
+    def print_Qtable(self) :
+        print(self.Q_table.print_Qtable())
 
 
 class fixed_goal( agent ) :
@@ -189,6 +196,9 @@ class fixed_goal( agent ) :
     
     def moveTO(self, game, new_pos) :
         return True
+    
+    def print_Qtable(self) :
+        print(self.Q_table.print_Qtable())
     
 
 

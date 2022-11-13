@@ -59,8 +59,8 @@ class GUI(tk.Tk) :
                     (x/game.size[1])*self.size[1] + rady,
                     fill=object.color, outline=object.color, width=4)
             else :
-                print('No image information found:  Object' + object.name )
                 # Draw gif at location
+                self.canvas.create_image(50,50,image = object.gif , ancher =(x,y))
         else :
             if object.gif == None :
                return self.canvas.create_oval((y/len(game.grid[0]))*self.size[0],
@@ -166,12 +166,12 @@ class GUI(tk.Tk) :
             i = 0
             for S_pos,R_pos in zip( seekers_moves, runners_moves ) :
                 i += 1
-                a,b = S_pos
-                self.canvas.moveto(char_seekers[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
-                self.root.update()
-                time.sleep(animation_refresh_seconds)
                 a,b = R_pos
                 self.canvas.moveto(char_runners[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
+                self.root.update()
+                time.sleep(animation_refresh_seconds)
+                a,b = S_pos
+                self.canvas.moveto(char_seekers[0], (b/game.size[1])*self.size[0], (a/game.size[0])*self.size[1])
                 self.root.update()
                 time.sleep(animation_refresh_seconds)
                 #if collect_GIF : self.save_as_png(self.canvas, 'image ' + str(i), 'testGame/')

@@ -2,7 +2,6 @@
         Stores object classes for default objects and empty space.
 """
 
-
 class object :
     def __init__( self, 
                 symbol : set = set(' '),
@@ -14,7 +13,7 @@ class object :
         self.color = color 
         self.name = name
         self.gif = gif
-    
+        
     def getInfo(self) :
         return {'Name' : self.name,
                 'Symbol' : self.symbol ,
@@ -53,3 +52,4 @@ class empty( object ) :
         self.threat = threat # threat could be damage done if touched
         
 
+        

@@ -35,7 +35,14 @@ def run_game_instance(
     runners_total_reward = 0
     seeker_positions = []
     runner_positions = []
+    S_states = []
+    
     for ii in range(game_length) :
+            print(epsilon)
+            print('%%%%%%%%%%%%%%%%%%%%%')
+            [print(row) for row in game.grid]
+            print('%%%%%%%%%%%%%%%%%%%%%')
+            print('%%%%%%%%%%%%%%%%%%%%%')
             seeker_states = []
             seeker_actions = []
             seeker_rewards = []
@@ -53,17 +60,8 @@ def run_game_instance(
 
             for A in seekers : seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position) ) #  Need to refactor for list of target agents.
             for A in runners : runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position) )
+            S_states += seeker_states
 
-            for A,state in zip(seekers, seeker_states) : 
-                action = A.Q_table.getAction( state )
-                action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
-                new_position, action = A.getNewPosition(game, action, A.position )
-                seeker_next_positions.append( new_position )
-                A.moveTO(game, new_position)
-                seeker_positions += [A.position]
-                seeker_actions.append( action )
-                
-            
             for A,state in zip(runners, runner_states) : 
                 action = A.Q_table.getAction( state )
                 action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
@@ -73,17 +71,26 @@ def run_game_instance(
                 runner_positions += [A.position]
                 runner_actions.append( action )
             
-            for A, new_position in zip( runners, runner_next_positions ) :
-                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
-                reward, end =  A.get_reward(game , runner_next_state[-1] , new_position , seekers[0].symbol)
-                runner_rewards.append( reward )
-                if end == True :
-                    stop = True
+            for A,state in zip(seekers, seeker_states) : 
+                action = A.Q_table.getAction( state )
+                action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
+                new_position, action = A.getNewPosition(game, action, A.position )
+                seeker_next_positions.append( new_position )
+                A.moveTO(game, new_position)
+                seeker_positions += [A.position]
+                seeker_actions.append( action )
 
             for A, new_position in zip( seekers, seeker_next_positions ) :
                 seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position))
                 reward, end =  A.get_reward(game , seeker_next_state[-1] , new_position , runners[0].symbol)
                 seeker_rewards.append( reward )
+                if end == True :
+                    stop = True
+
+            for A, new_position in zip( runners, runner_next_positions ) :
+                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
+                reward, end =  A.get_reward(game , runner_next_state[-1] , new_position , seekers[0].symbol)
+                runner_rewards.append( reward )
                 if end == True :
                     stop = True
 
@@ -106,7 +113,8 @@ def run_game_instance(
         'Runner Reward' : runners_total_reward,
         'Game Length' : ii,
         'Seeker Positions' : seeker_positions,
-        'Runner Positions' : runner_positions
+        'Runner Positions' : runner_positions,
+        'states' : S_states
     }
     return game_info
 
@@ -119,7 +127,7 @@ def basic_Q_learning(
     #agents : list[agent],
     num_epocs = 10000,
     game_length = 100,
-    game_size = (25,25),
+    game_size = (12,12),
     walls_prob=0.25,
     epsilon = 0.5,
     animation_refresh_seconds=0.02,
@@ -141,8 +149,7 @@ def basic_Q_learning(
             runner_positions += [A.position]
         seekers_total_reward = 0
         runners_total_reward = 0
-
-        epsilon = temp*(1-((epoc+1)/num_epocs))
+        print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         game_info = run_game_instance(
                                     q,
                                     seekers,
@@ -152,6 +159,7 @@ def basic_Q_learning(
                                     update_strategy=True
                                 )
         seekers_total_reward , runners_total_reward, ii = game_info['Seeker Reward'],game_info['Runner Reward'], game_info['Game Length']
+        states = game_info['states']
         seeker_positions += game_info['Seeker Positions']
         runner_positions += game_info['Runner Positions']
 
@@ -162,14 +170,21 @@ def basic_Q_learning(
                 + '\t' + 'Epsilon: ' + str(epsilon)
                 + '\t' + 'Game Length: ' + str(ii))
         if epoc%1000 == 0: 
+            #for s in states :
+            #    print(s,seekers[0].Q_table.q_table[s])
             play = GUI.GUI(q)
-            play.play_game(q, seekers=seekers, runners=runners, seekers_moves=seeker_positions,runners_moves=runner_positions, animation_refresh_seconds=animation_refresh_seconds , collect_GIF = collect_GIF )
-
+            play.play_game(q, 
+                            seekers=seekers, 
+                            runners=runners, 
+                            seekers_moves=seeker_positions,
+                            runners_moves=runner_positions, 
+                            animation_refresh_seconds=animation_refresh_seconds , 
+                            collect_GIF = collect_GIF )
     return seekers, runners
         
 
 def single_goal_training() :
-    q = game_((10,10), walls_prob=0.2)
+    q = game_((8,8), walls_prob=0.2)
     red = seeker(q, symbol = {"R"}, color = 'red', learning_style='basic')
     red.Q_table = q_table(moves = red.possible_moves)
     blue = runner(q, symbol = {"B"}, color = 'green', learning_style='basic')
@@ -178,25 +193,48 @@ def single_goal_training() :
     yellow = fixed_goal(q, symbol = {"F"}, learning_style='basic')
     yellow.Q_table = q_table(moves = yellow.possible_moves) 
 
-    seekers, runners = basic_Q_learning(q , [red], [yellow], game_size=(10,10), game_length=200,num_epocs=20000, walls_prob=0.2,animation_refresh_seconds=0.045, random_games = False)
+    seekers, runners = basic_Q_learning(q , 
+                                        [red], 
+                                        [yellow], 
+                                        game_size=(8,8), 
+                                        game_length=200,
+                                        num_epocs=20000, 
+                                        walls_prob=0.2,
+                                        animation_refresh_seconds=0.045, 
+                                        random_games = False)
 
-def Tag_training(strat = 'basic') :
-    q = game_((10,10), walls_prob=0.2)
-    red = seeker(q, symbol = {"R"}, color = 'red', learning_style=strat)
-    red.Q_table = q_table(moves = red.possible_moves)
+def Tag_training(
+                game = None , 
+                seekers : list = None, 
+                runners : list = None, 
+                game_size=(8,8), 
+                game_length=200,
+                num_epocs=2, 
+                walls_prob=0.4,
+                animation_refresh_seconds=0.045, 
+                random_games = True,
+                strat = 'basic'
+    ) :
+    q = game_(game_size, walls_prob=walls_prob)
+    if seekers == None :
+        seekers = seeker(q, symbol = {"R"}, color = 'red', learning_style=strat)
+        seekers.Q_table = q_table(moves = seekers.possible_moves)
     #blue = runner(q, symbol = {"B"}, color = 'blue', learning_style='basic')
     #blue.Q_table = q_table(moves = blue.possible_moves)
-    blue = runner(q, symbol = {"B"}, color = 'blue', learning_style=strat)
-    blue.Q_table = q_table(moves = blue.possible_moves)
+    if runners == None :
+        runners = runner(q, symbol = {"B"}, color = 'blue', learning_style=strat)
+        runners.Q_table = q_table(moves = runners.possible_moves)
 
     print('Small Game')
-    seekers, runners = basic_Q_learning(q , [red], [blue], 
-                                        game_size=(7,7), 
-                                        game_length=200,
-                                        num_epocs=2000, 
-                                        walls_prob=0.1,
-                                        animation_refresh_seconds=0.045, 
-                                        random_games = True
+    seekers, runners = basic_Q_learning(q , 
+                                        [seekers], 
+                                        [runners], 
+                                        game_size=game_size, 
+                                        game_length=game_length,
+                                        num_epocs=num_epocs, 
+                                        walls_prob=walls_prob,
+                                        animation_refresh_seconds=animation_refresh_seconds, 
+                                        random_games = random_games,
                                         )                            
     saveAgentToFile(seekers[0] , filename='Seeker.pkl')
     saveAgentToFile(runners[0] , filename='Runner.pkl')
@@ -214,8 +252,8 @@ def loadAgents(agentsFileName : list[ str ] ) -> None :
 def demoAgents(seekers, runners,
                 game = None,
                 game_length = 200,
-                game_size = (7,7),
-                walls_prob=0.2,
+                game_size = (12,12),
+                walls_prob=0.25,
                 epsilon = 0,
                 animation_refresh_seconds=0.02,
                 num_games = 25,
@@ -226,6 +264,8 @@ def demoAgents(seekers, runners,
         seekers = loadAgents(seekers)
     if all(isinstance(item, str) for item in runners) :
         runners = loadAgents(runners)
+    for A in seekers + runners :
+        A.position = None
     if game == None :
         game = game_(size=game_size, walls_prob=walls_prob)
     if collect_GIF : gif_games = []
@@ -240,8 +280,8 @@ def demoAgents(seekers, runners,
                                     game,
                                     seekers,
                                     runners,
-                                    game_length,
-                                    epsilon,
+                                    game_length = game_length,
+                                    epsilon = epsilon,
                                     update_strategy=False
                                 )
         seekers_moves = game_info['Seeker Positions']
@@ -271,7 +311,10 @@ def saveAgentToFile( obj , filename ) :
 def testAgents() :
     demoAgents(['Runner.pkl'], ['Seeker.pkl'], num_games = 20, collect_GIF = False)
 
+
+
+
 Tag_training(strat = 'basic_tree')
 
-testAgents()
+#testAgents()
 

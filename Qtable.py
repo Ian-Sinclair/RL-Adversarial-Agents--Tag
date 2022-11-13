@@ -22,9 +22,10 @@ class q_table() :
             self.q_table[new_state] = {}
             for a in self.possible_moves :
                 self.q_table[new_state][a] = 0
+
         if action in self.possible_moves :
             sample = reward
-            if new_state != state :
+            if abs(reward) != 60 :
                 sample = reward + discount*max(self.q_table[new_state].values())
             self.q_table[state][action] = (
                 (1-alpha)*self.q_table[state][action] + alpha*sample
