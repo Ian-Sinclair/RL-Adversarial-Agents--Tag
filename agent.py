@@ -23,7 +23,6 @@ class agent :
                                     'East' : (0,1),
                                     'South' : (1,0), 
                                     'West' : (0,-1), 
-                                    'Stay_still' : (0,0),
                                     'Random' : None }
             self.position = None
             if type(symbol) != type({0}) : symbol = {symbol}
@@ -138,6 +137,7 @@ class runner( agent ) :
         self.type = 'runner'
         self.possible_moves = super().get_possible_moves()
         for action in special_moves.keys() : self.possible_moves[action] = special_moves[action]
+        self.possible_moves['Stay Still'] = (0,0)
         self.Q_table = q_table(moves = list(self.possible_moves.keys()))
 
     def get_reward(self, game, q_state : tuple , new_pos : tuple, target : set) :
