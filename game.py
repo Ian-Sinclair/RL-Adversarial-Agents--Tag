@@ -44,6 +44,63 @@ class game( ) :
             row[0] = self.default_objects[0].symbol
             row[-1] = self.default_objects[0].symbol
         return grid
+    
+    def emptyGrid( self ) :
+        if len(self.default_objects) == 0 : return [[self.emptySpace.symbol]*self.size[0]]*self.size[1]
+        grid = [[
+                np.random.choice([self.emptySpace.symbol]).copy()
+                for j in range(self.size[0])] 
+            for i in range(self.size[1])
+        ]
+        grid[0] = [self.default_objects[0].symbol for a in grid[0]]
+        grid[-1] = [self.default_objects[0].symbol for a in grid[-1]]
+        for row in grid :
+            row[0] = self.default_objects[0].symbol
+            row[-1] = self.default_objects[0].symbol
+        return grid
+    
+    def uniformGrid( self ) :
+        if len(self.default_objects) == 0 : return [[self.emptySpace.symbol]*self.size[0]]*self.size[1]
+        prob = [1-self.walls_prob ] + [self.walls_prob/len(self.default_objects) ]*len(self.default_objects)
+        grid = [
+                    [
+                    np.random.choice(self.default_symbols).copy()
+                    if ((j+i)%4 == 1 and i%2 == 1)
+                    else
+                        self.emptySpace.symbol.copy()
+                    for j in range(self.size[0])
+                    ] 
+                    for i in range(self.size[1])
+                ]
+        grid[0] = [self.default_objects[0].symbol for a in grid[0]]
+        grid[-1] = [self.default_objects[0].symbol for a in grid[-1]]
+        for row in grid :
+            row[0] = self.default_objects[0].symbol
+            row[-1] = self.default_objects[0].symbol
+        return grid
+
+    def roomsGrid( self ) :
+        if len(self.default_objects) == 0 : return [[self.emptySpace.symbol]*self.size[0]]*self.size[1]
+        min_mod_rooms = 5
+        h_rooms = rnd.randint(min([min_mod_rooms,int(self.size[0]/2)]) , min([min_mod_rooms,self.size[0]]))
+        v_rooms = rnd.randint(min([min_mod_rooms, int(self.size[1]/2)]) , min([min_mod_rooms,self.size[1]]))
+        prob = [1-self.walls_prob ] + [self.walls_prob/len(self.default_objects) ]*len(self.default_objects)
+        grid = [
+                    [
+                    np.random.choice([np.random.choice(self.default_symbols).copy(), self.emptySpace.symbol.copy()], p = [0.75,0.25])
+                    if j%h_rooms == 0 or i%v_rooms == 0
+                    else
+                        self.emptySpace.symbol.copy()
+                    for j in range(self.size[0])
+                    ] 
+                    for i in range(self.size[1])
+                ]
+        grid[0] = [self.default_objects[0].symbol for a in grid[0]]
+        grid[-1] = [self.default_objects[0].symbol for a in grid[-1]]
+        for row in grid :
+            row[0] = self.default_objects[0].symbol
+            row[-1] = self.default_objects[0].symbol
+        return grid
 
 
     def update_grid( self, position, value ) :  #  Adds a string type value to the current set of strings at grid location (position)
@@ -52,7 +109,7 @@ class game( ) :
         #print(i,j)
         self.grid[i][j].update(value)
     
-    def remove_grid( self , position, value ) : #  Removes an element from grid at locatino position
+    def remove_grid( self , position, value ) : #  Removes an element from grid at location 'position'
         if type(value) != type(set()) : value = set([value])
         i,j = position
         self.grid[i][j] = self.grid[i][j] - value
@@ -82,9 +139,11 @@ class game( ) :
 
 def test_game_boards() :
     print('Printing Random Game Boards')
-    for i in range(100) :
-        print('Random Board:  ' + str(i))
-        q = game((rnd.randint(4,20),rnd.randint(4,20)), walls_prob=rnd.randint(0,20)/20)
+    board_types = ['randomGrid', 'uniformGrid', 'roomsGrid', 'emptyGrid']
+    for i in range(30) :
+        type = np.random.choice(board_types)
+        print('Random Board: ' + str(type) + ' Iteration: ' + str(i))
+        q = game((rnd.randint(8,20),rnd.randint(8,20)), walls_prob=rnd.randint(0,19)/20, fillFunc=type)
         q.print_game()
 
 

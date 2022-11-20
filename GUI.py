@@ -183,7 +183,7 @@ class GUI(tk.Tk) :
     def save_as_GIF(self, images : list, filename, path) :
         if not os.path.exists(path):
             os.makedirs(path)
-        images[0].save( path + filename + '.gif', save_all=True, append_images=images[1:], optimize=False,duration=100, loop=1)
+        images[0].save( path + filename + '.gif', save_all=True, append_images=images[1:], optimize=False,duration=80, loop=1)
         for img in images :
             img.close()
 

@@ -97,7 +97,7 @@ class seeker( agent ) :
                 Q_table : q_table = None ) :
         super().__init__(self,
                         symbol = symbol,
-                        color =color,
+                        color = color,
                         learning_style = learning_style,
                         gif = gif)
         self.type = 'seeker'
@@ -109,7 +109,7 @@ class seeker( agent ) :
         if game.contains( self.position , target ) : 
             return 1000, True
         if game.contains( new_pos , target ) : 
-            return 10000, True
+            return 1000, True
         if game.isOpen( new_pos ) == False : 
             return -60, False
         if any(list(target)[0] in q for q in q_state) : 
