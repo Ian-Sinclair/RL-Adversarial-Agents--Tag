@@ -5,12 +5,15 @@
 from base64 import encode
 from cmath import inf
 from Qtable import q_table
+#from util import k_quad_tree
 import random as rnd
 from typing import List
 import numpy as np
 import tkinter as tk 
 from tkinter import *
 import pickle
+
+from util import k_quad_tree
 
 class agent :
     def __init__(self,
@@ -79,11 +82,8 @@ class agent :
             game.update_grid( new_pos , self.symbol )
 
 
-
-
-    
-    def encode_Q_State(self, game, position, target_pos = (None,None)) : # move to encoding class
-        return eval("encode_" + self.learning_style + '(game, position, target_pos=target_pos)')
+    def encode_Q_State(self, game, position, k_tree, target_pos = (None,None)) : # move to encoding class
+        return eval("encode_" + self.learning_style + '(game, position, target_pos=target_pos , k_tree = k_tree)')
 
 
 class seeker( agent ) :
@@ -203,7 +203,7 @@ class fixed_goal( agent ) :
 
 
 
-def encode_basic(game, pos : tuple, size = 3, target_pos : tuple = (None,None)) :
+def encode_basic(game, pos : tuple, size = 3, target_pos : tuple = (None,None), k_tree = None) :
     #  make mask with basic game objects, center mask at position
     #  overlay mask with image.
     mask = [[tuple(list(game.default_symbols)[0]) for j in range(size)] for i in range(size)]
@@ -223,7 +223,7 @@ def encode_basic(game, pos : tuple, size = 3, target_pos : tuple = (None,None)) 
     )
 
 
-def encode_basic_tree( game, pos : tuple, target_pos, size = 3,  ) :
+def encode_basic_tree( game, pos : tuple, target_pos, size = 3 ,k_tree = None ) :
     state = encode_basic(game, pos, size)
     x,y = pos
     a,b = target_pos
@@ -236,6 +236,11 @@ def encode_basic_tree( game, pos : tuple, target_pos, size = 3,  ) :
     #return (modx ,  mody)
     return state + (modx ,  mody)
 
+
+def encode_k_quad_tree(game , pos : tuple, k_tree, target_pos, size = 3) :
+    state = encode_basic(game, pos, size)
+    tree_data = k_tree.extract_data()
+    return state + tree_data
 
 
 

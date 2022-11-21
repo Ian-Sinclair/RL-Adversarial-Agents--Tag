@@ -98,6 +98,55 @@ class GUI(tk.Tk) :
         return [
             self.draw_object( game, A , A.position[1] , A.position[0] ) for A in agents
         ]
+    
+    def draw_centers(self, game, centers : list[tuple] ) :
+        radx = self.size[0]/(game.size[0]*5)
+        rady = self.size[1]/(game.size[1]*5)
+        return [
+                self.canvas.create_oval((y/len(game.grid[0]))*self.size[0]-radx,
+                (x/len(game.grid))*self.size[1] - radx,
+                (y/len(game.grid[0]))*self.size[0] + radx,
+                (x/len(game.grid))*self.size[1] + rady,
+                fill='red', outline='red', width=4)
+                for x,y in centers
+        ]
+    
+    def draw_cross(self, game, center : tuple, min_xy : tuple , max_xy : tuple) :
+        x_max , y_max = game.size
+        x,y = center
+        x_lb , y_lb = min_xy
+        x_ub , y_ub = max_xy
+        lines = []
+        lines.append( self.canvas.create_line(
+                (y_lb/y_max)*self.size[1],
+                (x/x_max)*self.size[0],
+                (y_ub/y_max)*self.size[1],
+                (x/x_max)*self.size[0],
+                fill="red", 
+                width=2) )
+        lines.append( self.canvas.create_line(
+                (y/y_max)*self.size[1],
+                (x_lb/x_max)*self.size[0],
+                (y/y_max)*self.size[1],
+                (x_ub/x_max)*self.size[0],
+                fill="red", 
+                width=2) )
+        return lines
+
+
+
+    def demo_tree(self, game, rect_info : list[dict]) :
+        self.root.wait_visibility()  # Saves animation frames for window origination
+        self.draw_background(game)
+        rectangels = self.draw_defaultObjects( game )
+        centers = [info['center'] for info in rect_info]
+        dots = self.draw_centers(game,centers)
+        lines = []
+        for info in rect_info :
+            self.draw_cross(game, info['center'], info['min_xy'], info['max_xy'])
+        self.root.mainloop()
+
+
 
     def saveImage(self, savelocation):
         widget = self.canvas

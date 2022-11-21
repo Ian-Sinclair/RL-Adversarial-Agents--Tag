@@ -129,6 +129,10 @@ def default_curriculum(
         runners.Q_table = q_table(moves = moves)
 
 
+
+    phase_1 = True
+    phase_2 = False
+    phase_3 = False
     print('Class Schedule: \n \
          1) large randomGrid 10,000 epocs \n \
          2) small roomsGrid 30,000 epocs \n \
@@ -138,60 +142,63 @@ def default_curriculum(
     print('Starting Training')
     print('-'*30)
 
-    print('1) large randomGrid 10,000 epocs')
-    seekers , runners = learning_instance(
-            [seekers],
-            [runners],
-            game = None,
-            game_type = 'randomGrid',
-            num_epocs = 10000,
-            game_length = 200,
-            game_size = (15,15),
-            walls_prob=0.4,
-            epsilon = 0.5,
-            animation_refresh_seconds=0.02,
-            random_games = True,
-        )
+    if phase_1 :
+        print('1) large randomGrid 10,000 epocs')
+        seekers , runners = learning_instance(
+                [seekers],
+                [runners],
+                game = None,
+                game_type = 'randomGrid',
+                num_epocs = 10000,
+                game_length = 200,
+                game_size = (15,15),
+                walls_prob=0.4,
+                epsilon = 0.5,
+                animation_refresh_seconds=0.02,
+                random_games = True,
+            )
     print('-'*30)
     print('phase 1 complete')
     print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
-    print('2) small roomsGrid 30,000 epocs')
-    seekers , runners = learning_instance(
-            seekers,
-            runners,
-            game = None,
-            game_type = 'roomsGrid',
-            num_epocs = 30000,
-            game_length = 200,
-            game_size = (10,10),
-            walls_prob=0.4,
-            epsilon = 0.5,
-            animation_refresh_seconds=0.02,
-            random_games = True,
-        )
+    if phase_2 :
+        print('2) small roomsGrid 30,000 epocs')
+        seekers , runners = learning_instance(
+                seekers,
+                runners,
+                game = None,
+                game_type = 'roomsGrid',
+                num_epocs = 30000,
+                game_length = 200,
+                game_size = (10,10),
+                walls_prob=0.4,
+                epsilon = 0.5,
+                animation_refresh_seconds=0.02,
+                random_games = True,
+            )
     print('-'*30)
     print('phase 2 complete')
     print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
-    print('3) large roomsGrid 60,000 epocs')
-    seekers , runners = learning_instance(
-            seekers,
-            runners,
-            game = None,
-            game_type = 'roomsGrid',
-            num_epocs = 60000,
-            game_length = 200,
-            game_size = (25,25),
-            walls_prob=0.4,
-            epsilon = 0.5,
-            animation_refresh_seconds=0.02,
-            random_games = True,
-        )
-    print('phase 3 complete')
-    print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
+    if phase_3 :
+        print('3) large roomsGrid 60,000 epocs')
+        seekers , runners = learning_instance(
+                seekers,
+                runners,
+                game = None,
+                game_type = 'roomsGrid',
+                num_epocs = 60000,
+                game_length = 200,
+                game_size = (25,25),
+                walls_prob=0.4,
+                epsilon = 0.5,
+                animation_refresh_seconds=0.02,
+                random_games = True,
+            )
+        print('phase 3 complete')
+        print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
     if seeker_file != None : 
@@ -237,6 +244,6 @@ def main(argv) :
 
 
 if __name__ == "__main__":
-    default_curriculum(seeker_strat = 'basic_tree', runner_strat= 'basic_tree', seeker_file = 'Seeker.pkl', runner_file = 'Runner.pkl')
+    default_curriculum(seeker_strat = 'k_quad_tree', runner_strat= 'basic', seeker_file = 'SeekerTest.pkl', runner_file = 'RunnerTest.pkl')
     main(sys.argv[1:])
 

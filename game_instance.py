@@ -1,5 +1,6 @@
 from agent import agent
 import numpy as np
+from util import k_quad_tree
 
 
 def run_game_instance(
@@ -16,7 +17,17 @@ def run_game_instance(
     runner_positions = []
     S_Repeat_states = {}
     R_Repeat_states = {}
-    
+    tree_strat = False
+    for A in seekers + runners :
+        if A.learning_style == 'k_quad_tree' :
+            tree_strat = True
+    k_tree = None
+    if tree_strat == True :
+        k_tree = k_quad_tree(game, (game.size[0]/2,game.size[1]/2), k=2)
+        for i in range(game.size[0]) :
+            for j in range(game.size[1]) :
+                k_tree.add_data(game,(i,j))
+
     for ii in range(game_length) :
             seeker_states = []
             seeker_actions = []
@@ -37,13 +48,13 @@ def run_game_instance(
 
     
             for A in seekers : 
-                seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position) )
+                seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position, k_tree = k_tree) )
                 if seeker_states[-1] not in S_Repeat_states.keys() :
                     S_Repeat_states[seeker_states[-1]] = '0' 
                 seeker_states[-1] += (S_Repeat_states[seeker_states[-1]],S_Repeat_states[seeker_states[-1]])
                 seeker_temp_pos += [A.position]
             for A in runners : 
-                runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position) )
+                runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position, k_tree = k_tree) )
                 if runner_states[-1] not in R_Repeat_states.keys() :
                     R_Repeat_states[runner_states[-1]] = '0' 
                 runner_states[-1] += (R_Repeat_states[runner_states[-1]],R_Repeat_states[runner_states[-1]])
@@ -55,6 +66,8 @@ def run_game_instance(
                 #   Updated for runner to move randomly every time (training idea....)
                 #action = np.random.choice([action, 'Move_Random'], p = [0, 1])
                 new_position, action = A.getNewPosition(game, action, A.position )
+                if tree_strat : 
+                    k_tree.update_data(game, new_position, A.position, rank = 2)
                 runner_next_positions.append( new_position )
                 A.moveTO(game, new_position)
                 runner_positions += [A.position]
@@ -64,13 +77,15 @@ def run_game_instance(
                 action = A.Q_table.getAction( state )
                 action = np.random.choice([action, 'Move_Random'], p = [(1-epsilon), epsilon])
                 new_position, action = A.getNewPosition(game, action, A.position )
+                if tree_strat : 
+                    k_tree = k_tree.update_data(game, new_position, A.position, rank = 3)
                 seeker_next_positions.append( new_position )
                 A.moveTO(game, new_position)
                 seeker_positions += [A.position]
                 seeker_actions.append( action )
 
             for A, new_position in zip( seekers, seeker_next_positions ) :
-                seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position))
+                seeker_next_state.append(A.encode_Q_State(game, A.position, target_pos=runners[0].position, k_tree = k_tree))
                 if seeker_next_state[-1] in S_Repeat_states.keys() :
                     S_Repeat_states[seeker_next_state[-1]] = str(int(S_Repeat_states[seeker_next_state[-1]])+1) 
                 else : S_Repeat_states[seeker_next_state[-1]] = '0' 
@@ -83,7 +98,7 @@ def run_game_instance(
 
             runner_index = 0
             for A, new_position in zip( runners, runner_next_positions ) :
-                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position))
+                runner_next_state.append(A.encode_Q_State(game, A.position, target_pos=seekers[0].position, k_tree = k_tree))
                 if runner_next_state[-1] in R_Repeat_states.keys() :
                     R_Repeat_states[runner_next_state[-1]] = str(int(R_Repeat_states[runner_next_state[-1]])+1) 
                 else : R_Repeat_states[runner_next_state[-1]] = '0' 
