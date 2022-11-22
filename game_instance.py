@@ -53,15 +53,19 @@ def run_game_instance(
     
             for A in seekers : 
                 seeker_states.append( A.encode_Q_State(game, A.position, target_pos=runners[0].position, k_tree = k_tree) )
+                '''
                 if seeker_states[-1] not in S_Repeat_states.keys() :
                     S_Repeat_states[seeker_states[-1]] = '0' 
                 seeker_states[-1] += (S_Repeat_states[seeker_states[-1]],S_Repeat_states[seeker_states[-1]])
+                '''
                 seeker_temp_pos += [A.position]
             for A in runners : 
                 runner_states.append( A.encode_Q_State(game, A.position, target_pos=seekers[0].position, k_tree = k_tree) )
+                '''
                 if runner_states[-1] not in R_Repeat_states.keys() :
                     R_Repeat_states[runner_states[-1]] = '0' 
                 runner_states[-1] += (R_Repeat_states[runner_states[-1]],R_Repeat_states[runner_states[-1]])
+                '''
                 runner_temp_pos += [A.position]
 
             for A,state in zip(runners, runner_states) : 

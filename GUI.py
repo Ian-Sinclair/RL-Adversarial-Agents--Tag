@@ -12,7 +12,6 @@ import tkinter as tk
 from tkinter import *
 import time
 from PIL import ImageGrab, Image
-import ghostscript
 #  from PIL import Image, ImageTk
 
 

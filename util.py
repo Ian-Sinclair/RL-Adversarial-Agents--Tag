@@ -110,6 +110,20 @@ def test1() :
     k_tree.print_data()
 
 
+def fixFile(filename) :
+    import csv
+    with open(filename + '.csv', newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',')
+        with open(filename + '.txt', 'w') as f:
+            for row in spamreader:
+                if len(row) > 1 :
+                    f.write(str(row[1]) + '\n')
+            
+            
+
+
+
+
 if __name__ == "__main__":
-    test1()
+    fixFile('Results\Grid_Avg_Distance')
 

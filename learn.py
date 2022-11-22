@@ -58,7 +58,7 @@ def learning_instance(
             A.start_position(game)
             runner_positions += [A.position]
 
-        #epsilon = temp*(1-epoc/num_epocs)
+        epsilon = temp*(1-epoc/num_epocs)
         seekers_total_reward = 0
         runners_total_reward = 0
         game_info = run_game_instance(
@@ -89,7 +89,7 @@ def learning_instance(
                             seekers_moves=seeker_positions, 
                             runners_moves=runner_positions, 
                             animation_refresh_seconds=animation_refresh_seconds)
-        if epoc%1000 and epoc > num_epocs-10 :
+        if epoc%1000 and epoc > num_epocs-5 :
             demo_games += [{'game' : game , 'seeker moves' : game_info['Seeker Positions'] , 'runner moves' : game_info['Runner Positions']}]
     if collect_data == True :
         return seekers , runners, run_info, demo_games
@@ -143,7 +143,7 @@ def data_collection(
                                             game_length = 200,
                                             game_size = game_size,
                                             walls_prob=walls_prob,
-                                            epsilon = 1,
+                                            epsilon = 0.5,
                                             animation_refresh_seconds=animation_refresh_seconds,
                                             random_games = True,
                                             collect_data=True,
@@ -232,7 +232,7 @@ def random_curriculum (
                                             [runners],
                                             game = None,
                                             game_type = 'randomGrid',
-                                            num_epocs = 40000,
+                                            num_epocs = 10000,
                                             game_length = 200,
                                             game_size = (14,14),
                                             walls_prob=0.4,
@@ -428,8 +428,8 @@ def main(argv) :
 if __name__ == "__main__":
     #default_curriculum(seeker_strat = 'k_quad_tree', runner_strat= 'basic', seeker_file = 'SeekerTest.pkl', runner_file = 'RunnerTest.pkl')
     #random_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Seeker_Basic_Tree.pkl',runner_file='Runner_Basic_Tree.pkl')
-    data_collection('Seeker.pkl', 'Runner.pkl', 'Random_game_length_file.csv', 'Random_Avg_Distance.csv', GIF_File = None)
-    #main(sys.argv[1:])
+    #data_collection('Seeker.pkl', 'Runner.pkl', 'Random_game_length_file.csv', 'Random_Avg_Distance.csv', GIF_File = None)
+    main(sys.argv[1:])
 
     # python learn.py -z -S 'basic_tree' -R 'basic_tree' --Sfile Seeker_Basic_Tree.pkl --Rfile Runner_Basic_Tree.pkl --gm_lng_file Test_game_length_file.csv --AVG_dis_file Test_Avg_Distance.csv --GIF_file TreeGIF
 
