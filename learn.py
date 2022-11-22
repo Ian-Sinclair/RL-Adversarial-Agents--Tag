@@ -381,24 +381,60 @@ def saveAgentToFile( obj , filename ) :
 
 
 def main(argv) :
+    seeker_strat = 'basic_tree'
+    runner_strat = 'basic_tree'
+    seeker_file = None
+    runner_file = None
+    game_length_outfile = None
+    Avg_Distance_outfile = None
+    GIF_outfile = None
+
+    run_random = False
+
     try :
-      opts, args = getopt.getopt(argv, "t:z:n:l:p:e:g:",
-                                ["SFile=","RFile="])
+      opts, args = getopt.getopt(argv, "zS:R:",
+                                ["SFile=","RFile=", "gm_lng_file=", "AVG_dis_file=", "GIF_file="])
     except getopt.GetoptError:
-      print('test.py -g <board type>  \
-            -n <number of games \
-            -l <game length> \
-            -p <wall probability> \
-            -e <animation refresh speed> \
-            -g <collect gif to file location> \
+        print('-z runs long training process \
+            -S <seeker strategy>\
+                -R <> runner strategy\
+            -GIF_file <collect gif to file location> \
             --SFile <seeker file location> \
-            --RFile <Runner file location>')
-      sys.exit(2)
+            --RFile <Runner file location>\
+                --gm_lng_file <returns average games per 1000 across training>\
+                    --AVG_dis_file <returns normalized average change in distance between agents>')
+        sys.exit(2)
+    for opt , arg in opts :
+        if opt == '-z' :
+            run_random = False
+        if opt == '-S' :
+            seeker_strat = arg
+        if opt == '-R' :
+            runner_strat = arg
+        if opt == '--SFile' :
+            seeker_file = arg
+        if opt == '--RFile' :
+            runner_file = arg
+        if opt == '--gm_lng_file' :
+            game_length_outfile = arg
+        if opt == '--AVG_dis_file' :
+            Avg_Distance_outfile = arg
+        if opt == '--GIF_file' :
+            GIF_outfile = arg
+
+
+    if run_random : 
+        random_curriculum(seeker_strat=seeker_strat,runner_strat=runner_strat,seeker_file=seeker_file,runner_file=runner_file)
+        data_collection(seeker_file, runner_file, game_length_outfile, Avg_Distance_outfile, GIF_File = GIF_outfile)
+
+    default_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Default_Seeker.pkl',runner_file='Default_Runner.pkl')
 
 
 if __name__ == "__main__":
     #default_curriculum(seeker_strat = 'k_quad_tree', runner_strat= 'basic', seeker_file = 'SeekerTest.pkl', runner_file = 'RunnerTest.pkl')
-    random_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Seeker_Basic_Tree.pkl',runner_file='Runner_Basic_Tree.pkl')
-    data_collection('Seeker_Basic_Tree.pkl', 'Runner_Basic_Tree.pkl', 'Test_game_length_file.csv', 'Test_Avg_Distance.csv', GIF_File = 'TreeGIF')
+    #random_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Seeker_Basic_Tree.pkl',runner_file='Runner_Basic_Tree.pkl')
+    #data_collection('Seeker_Basic_Tree.pkl', 'Runner_Basic_Tree.pkl', 'Test_game_length_file.csv', 'Test_Avg_Distance.csv', GIF_File = 'TreeGIF')
     main(sys.argv[1:])
+
+    # python learn.py -z -S 'basic_tree' -R 'basic_tree' --Sfile Seeker_Basic_Tree.pkl --Rfile Runner_Basic_Tree.pkl --gm_lng_file Test_game_length_file.csv --AVG_dis_file Test_Avg_Distance.csv --GIF_file TreeGIF
 
