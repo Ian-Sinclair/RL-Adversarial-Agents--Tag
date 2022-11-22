@@ -41,34 +41,34 @@ This also demonstrates the adaptive policies of the agents.
 > In general, demo.py take terminal options to load different agents and different game board types.
 
 > First run python demo.py this will select default seeker.pkl and runner.pkl and a random game board.
-'''
+```
 python demo.py
-'''
+```
 
 From here you can change the inputs to the terminal command. First select a better agent with
 
-'''
+```
 python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl
-'''
+```
 
 This will load the agents trained will all three levels of state space abstraction.
 >From here you can change the type of the game board by using,
 
-'''
+```
 python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25
-'''
+```
 change 25 to any integer.
 
 >Next, you can change the amount of games are run in the demo.
-'''
+```
 python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25 -n 5
-'''
+```
 
 > You can also change the type of game environment to something more principled.
 
-'''
+```
 python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25 -n 5 -t roomsGrid
-'''
+```
 Other options for game environments are, ['roomsGrid' , 'randomGrid', 'uniformGrid', 'emptyGrid'] select any of to showcase.
 
 > I think this completes the useful parameters that can be changed in the demo.py file. From here it may be fun to put the
@@ -83,9 +83,9 @@ In general training can take a long time, however, the the algorithm will demo t
 or so games (which is about every 2 minutes) and so I recommend starting a training cycle then canceling the run
 after a few thousand epocs.
 
-'''
+```
 python learn.py
-'''
+```
 This command runs the  default learning curriculum that puts two agents equipped with all three levels of state abstraction against
 each other. In general, this is a very short learning cycle, about 15 thousand epocs in total that will train 5000 epocs on each 
 type of environment ['roomsGrid' , 'randomGrid', 'uniformGrid'].
