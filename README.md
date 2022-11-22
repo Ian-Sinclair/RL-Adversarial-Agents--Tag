@@ -93,9 +93,9 @@ This training function is not used when training the pre-trained models. However
 which takes about 90 minutes in total to train. In contrast this default curriculum usually takes about 10 minutes to finish training.
 > This training function will automatically pickle the agents to files,
 'Default_Seeker.pkl' and 'Default_Runner.pkl' which can then be demoed again with,
-'''
+```
 python demo.py --SFile Default_Seeker.pkl --RFile Default_Runner.pkl
-'''
+```
 The above sections provide a instructions for a high level showcase of the project. From here, most files have their own test cases that can be run;
 however, I don't think it will be that interesting. Most of the fun algorithm specific code is in game_instance.py, agent.py, and Qtable.py.
 
