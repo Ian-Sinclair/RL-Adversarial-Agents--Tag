@@ -147,7 +147,7 @@ def data_collection(
                                             animation_refresh_seconds=animation_refresh_seconds,
                                             random_games = True,
                                             collect_data=True,
-                                            update_strategy = False
+                                            update_strategy = True
         )
     if game_length_file != None :
         if not os.path.exists('Results/') :
@@ -185,6 +185,7 @@ def data_collection(
             for data in game_distance_data :
                 w.writerow(dict(data))
     gif_games = []
+    k = 0
     for info in demos : 
         play = GUI.GUI(info['game'])
         gif_images = play.play_game(
@@ -195,15 +196,11 @@ def data_collection(
                 info['runner moves'],
                 animation_refresh_seconds,
                 collect_GIF = True,
-                FileName='Game ' + str(i) + " Image "
+                FileName='Game ' + str(k) + " Image "
             )
+        k += 1
         if GIF_Bool : gif_games += gif_images
     if GIF_Bool : play.save_as_GIF(gif_games, GIF_File, 'GIFs/')
-
-
-
-
-            
 
 
 
@@ -235,7 +232,7 @@ def random_curriculum (
                                             [runners],
                                             game = None,
                                             game_type = 'randomGrid',
-                                            num_epocs = 100000,
+                                            num_epocs = 40000,
                                             game_length = 200,
                                             game_size = (14,14),
                                             walls_prob=0.4,
@@ -284,27 +281,27 @@ def default_curriculum(
 
 
     phase_1 = True
-    phase_2 = False
-    phase_3 = False
+    phase_2 = True
+    phase_3 = True
     print('Class Schedule: \n \
-         1) large randomGrid 10,000 epocs \n \
-         2) small roomsGrid 30,000 epocs \n \
-         3) large roomsGrid 60,000 epocs')
+         1) large randomGrid 5,000 epocs \n \
+         2) small roomsGrid 5,000 epocs \n \
+         3) large uniformGrid 5,000 epocs')
 
     print('-'*30)
     print('Starting Training')
     print('-'*30)
 
     if phase_1 :
-        print('1) large randomGrid 10,000 epocs')
+        print('1) large randomGrid 5,000 epocs')
         seekers , runners = learning_instance(
                 [seekers],
                 [runners],
                 game = None,
                 game_type = 'randomGrid',
-                num_epocs = 10000,
+                num_epocs = 5000,
                 game_length = 200,
-                game_size = (15,15),
+                game_size = (12,12),
                 walls_prob=0.4,
                 epsilon = 0.5,
                 animation_refresh_seconds=0.02,
@@ -312,46 +309,43 @@ def default_curriculum(
             )
     print('-'*30)
     print('phase 1 complete')
-    print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
     if phase_2 :
-        print('2) small roomsGrid 30,000 epocs')
+        print('2) small roomsGrid 5,000 epocs')
         seekers , runners = learning_instance(
                 seekers,
                 runners,
                 game = None,
                 game_type = 'roomsGrid',
-                num_epocs = 30000,
+                num_epocs = 5000,
                 game_length = 200,
                 game_size = (10,10),
-                walls_prob=0.4,
+                walls_prob=0.3,
                 epsilon = 0.5,
                 animation_refresh_seconds=0.02,
                 random_games = True,
             )
     print('-'*30)
     print('phase 2 complete')
-    print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
     if phase_3 :
-        print('3) large roomsGrid 60,000 epocs')
+        print('3) large uniformGrid 5000 epocs')
         seekers , runners = learning_instance(
                 seekers,
                 runners,
                 game = None,
-                game_type = 'roomsGrid',
-                num_epocs = 60000,
+                game_type = 'uniformGrid',
+                num_epocs = 5000,
                 game_length = 200,
-                game_size = (25,25),
+                game_size = (20,20),
                 walls_prob=0.4,
                 epsilon = 0.5,
                 animation_refresh_seconds=0.02,
                 random_games = True,
             )
         print('phase 3 complete')
-        print('states added to q_table: ' + str(len(seekers[0].Q_table.q_table.keys())))
     print('-'*30)
     print('-'*30)
     if seeker_file != None : 
@@ -406,7 +400,7 @@ def main(argv) :
         sys.exit(2)
     for opt , arg in opts :
         if opt == '-z' :
-            run_random = False
+            run_random = True
         if opt == '-S' :
             seeker_strat = arg
         if opt == '-R' :
@@ -426,6 +420,7 @@ def main(argv) :
     if run_random : 
         random_curriculum(seeker_strat=seeker_strat,runner_strat=runner_strat,seeker_file=seeker_file,runner_file=runner_file)
         data_collection(seeker_file, runner_file, game_length_outfile, Avg_Distance_outfile, GIF_File = GIF_outfile)
+        sys.exit(2)
 
     default_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Default_Seeker.pkl',runner_file='Default_Runner.pkl')
 

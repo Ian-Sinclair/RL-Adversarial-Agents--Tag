@@ -138,7 +138,7 @@ def run_game_instance(
         'Seeker Positions' : seeker_positions,
         'Runner Positions' : runner_positions,
         'states' : S_Repeat_states,
-        'Distance' : (max(agent_distances)-min(agent_distances))/(ii+1)
+        'Distance' : (max(agent_distances)-min(agent_distances))/(max(agent_distances + [1]))
     }
     return game_info
 
