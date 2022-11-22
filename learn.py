@@ -120,7 +120,7 @@ def data_collection(
     runners : list[str],
     game_length_file = None,
     distance_between_agents_file = None,
-    num_epocs = 100000,
+    num_epocs = 10000,
     game_type = 'randomGrid',
     game_size = (12,12),
     walls_prob = 0.4,
@@ -157,7 +157,7 @@ def data_collection(
         j = 0
         for i,info in enumerate(run_info) :
             window += [info['Game Length']]
-            if i %1000 == 0 :
+            if i %100 == 0 :
                 game_length_data += [{'index' : j, 'average game length' : mean(window)}]
                 window = []
                 j += 1
@@ -175,7 +175,7 @@ def data_collection(
         j = 0
         for i,info in enumerate(run_info) :
             window += [info['Distance']]
-            if i %1000 == 0 :
+            if i %100 == 0 :
                 game_distance_data += [{'index' : j, 'average distance' : mean(window)}]
                 window = []
                 j += 1
