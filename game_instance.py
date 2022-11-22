@@ -28,6 +28,7 @@ def run_game_instance(
             for j in range(game.size[1]) :
                 k_tree.add_data(game,(i,j))
 
+    agent_distances = []
     for ii in range(game_length) :
             seeker_states = []
             seeker_actions = []
@@ -45,6 +46,9 @@ def run_game_instance(
 
             seeker_temp_pos = []
             runner_temp_pos = []
+
+            for S,R in zip(seekers, runners) :
+                agent_distances += [Manhattan_distance(S.position,R.position)]
 
     
             for A in seekers : 
@@ -133,7 +137,14 @@ def run_game_instance(
         'Game Length' : ii,
         'Seeker Positions' : seeker_positions,
         'Runner Positions' : runner_positions,
-        'states' : S_Repeat_states
+        'states' : S_Repeat_states,
+        'Distance' : (max(agent_distances)-min(agent_distances))/(ii+1)
     }
     return game_info
 
+
+
+
+
+def Manhattan_distance(pos1 : tuple, pos2 : tuple) :
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])

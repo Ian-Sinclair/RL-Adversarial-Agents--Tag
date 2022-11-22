@@ -27,18 +27,7 @@ class k_quad_tree() :
                 (1,1) : k_quad_tree(game, ( x+ (abs( x_max-x )/2 ) , y+(abs( y_max-y )/2) )  , k = self.k-1 , min_xy=(x,y), max_xy=(x_max,y_max))
             }
         else : 
-            #self.data = { 'data' : game.default_objects[0].symbol.copy(), 'rank' : -2 }
             self.data = { 'data' : game.default_objects[0].symbol.copy(), 'rank' : -2 }
-            '''
-            # make top right quad tree
-            self.topLeft = k_quad_tree(game, ( int(x/2),int(y/2) ) , k = self.k-1 )
-            # make bottom right quad tree
-            self.botRight = k_quad_tree(game, ( int( abs( x_max-x )/2 ),int( abs( x_max-x )/2 ) ) , k = self.k-1 )
-            # make top left quad tree
-            self.topLeft = k_quad_tree(game, ( int( x / 2 ),int( abs( y_max - y ) / 2 ) ) , k = self.k-1 )
-            # make bottom right quad tree
-            self.botLeft = k_quad_tree(game, ( int( abs( x_max-x )/2 ) , int( y/2 ) ) , k = self.k-1 )
-            '''
 
     def add_data(self, game , position : tuple , value = None, rank = None) :
         if self.k > 0 :
@@ -108,17 +97,17 @@ class k_quad_tree() :
 
 
 def test1() :
-    '''
+    import GUI
+    from game import game as game_
     game = game_(size=(20,20), walls_prob=0.2, fillFunc='uniformGrid')
     game.print_game()
-    k_tree = k_quad_tree(game, (15,15), k=2)
+    k_tree = k_quad_tree(game, (10,10), k=3)
     play = GUI.GUI(game)
     play.demo_tree(game, k_tree.get_rect())
     for i in range(game.size[0]) :
         for j in range(game.size[1]) :
             k_tree.add_data(game,(i,j))
     k_tree.print_data()
-    '''
 
 
 if __name__ == "__main__":

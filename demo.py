@@ -35,12 +35,11 @@ def demo_run(seekers,
 
     seekers = loadAgents(seekers)
     runners = loadAgents(runners)
-
-    for A in seekers + runners :
-        A.position = None
     
     for i in range(num_games) :
         game = game_(size=game_size, walls_prob=random.random()*walls_prob, fillFunc=game_type)
+        for A in seekers + runners :
+            A.position = None
         for A in seekers + runners :
             A.start_position(game)
         
@@ -131,22 +130,22 @@ def main(argv) :
         if opt == '-g' :
             if type(arg) != type(' ') :
                 raise TypeError('collect GIF -g <file location> must be of type string')
-            if not os._exists(arg) :
-                raise ValueError(' -g <GIF file save location> Cannot find file for GIF location under path: ' +str(arg) )
+            #if not os._exists(arg) :
+            #    raise ValueError(' -g <GIF file save location> Cannot find file for GIF location under path: ' +str(arg) )
             collect_GIF = arg
         
         if opt == '--SFile' :
             if type(arg) != type(' ') :
                 raise TypeError('Seeker file --SFile <file location> must be of type string')
-            if not os.exists(arg) :
-                raise ValueError(' --SFile <seeker file location> Cannot find file for seeker location under path: ' +str(arg) )
+            #if not os._exists(arg) :
+            #    raise ValueError(' --SFile <seeker file location> Cannot find file for seeker location under path: ' +str(arg) )
             Seekers = arg
 
         if opt == '--RFile' :
             if type(arg) != type(' ') :
                 raise TypeError('Runner file --RFile <file location> must be of type string')
-            if not os.exists(arg) :
-                raise ValueError(' --RFile <runner file location> Cannot find file for seeker location under path: ' +str(arg) )
+            #if not os.exists(arg) :
+            #    raise ValueError(' --RFile <runner file location> Cannot find file for seeker location under path: ' +str(arg) )
             Runners = arg
     if Runners == None or Seekers == None :
         raise ValueError('Argument Error: File locations for seeker and runner agents are required.  --SFile <seeker file location> , --RFile <Runner File location>')
