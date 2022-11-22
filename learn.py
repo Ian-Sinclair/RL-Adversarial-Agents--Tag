@@ -428,8 +428,8 @@ def main(argv) :
 if __name__ == "__main__":
     #default_curriculum(seeker_strat = 'k_quad_tree', runner_strat= 'basic', seeker_file = 'SeekerTest.pkl', runner_file = 'RunnerTest.pkl')
     #random_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Seeker_Basic_Tree.pkl',runner_file='Runner_Basic_Tree.pkl')
-    #data_collection('Seeker_Basic_Tree.pkl', 'Runner_Basic_Tree.pkl', 'Test_game_length_file.csv', 'Test_Avg_Distance.csv', GIF_File = 'TreeGIF')
-    main(sys.argv[1:])
+    data_collection('Seeker_Basic_Tree.pkl', 'Runner_Basic_Tree.pkl', 'Test_game_length_file.csv', 'Test_Avg_Distance.csv', GIF_File = 'TreeGIF')
+    #main(sys.argv[1:])
 
     # python learn.py -z -S 'basic_tree' -R 'basic_tree' --Sfile Seeker_Basic_Tree.pkl --Rfile Runner_Basic_Tree.pkl --gm_lng_file Test_game_length_file.csv --AVG_dis_file Test_Avg_Distance.csv --GIF_file TreeGIF
 
