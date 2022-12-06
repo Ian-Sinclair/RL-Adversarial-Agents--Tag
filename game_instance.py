@@ -1,3 +1,7 @@
+'''
+    Runs a single game instance and returns information about the results of the game.
+'''
+
 from agent import agent
 import numpy as np
 from util import k_quad_tree

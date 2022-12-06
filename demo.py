@@ -1,4 +1,10 @@
-#  This is a file that manages user inputs to demo agents abilities.
+'''
+    -Ian Sinclair-
+    File handles displaying games and running the AI for each agents.
+    This is the main function to call when exploring the quality of agents learning
+    after training.
+
+'''
 from game_instance import run_game_instance
 from game import game as game_
 import GUI

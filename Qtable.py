@@ -1,5 +1,11 @@
+
+
 '''
-    Q table class contains basic information to store and query Q tables.
+    -Ian Sinclair-
+    Class that contains a Q-table, along with critical functions for updating and 
+    querying the table.
+    Generality, table is in the form for a dictionary of dictionaries.
+        q_table[state][action] = reward for state action pair.
 '''
 
 import numpy as np
@@ -13,6 +19,10 @@ class q_table() :
     
     def basic( self ) : # 3X3 In front of target.
         return {}
+    
+    #  update method for Q table based on Bellman updates.
+    #  If a state has not already been recognized it will be initialized with 0 rewards for all actions.
+    #  Every action must be in the list of possible moves for the agent.
     def update_q_Table(self, state, reward, action, new_state, discount = 1, alpha = 0.01) :
         if state not in self.q_table.keys() :
             self.q_table[state] = {}
@@ -33,6 +43,7 @@ class q_table() :
             return True
         return False
     
+    #  Given a state returns the action with the highest expected reward (Q value).
     def getAction(self, state) :
         if state in self.q_table.keys() : 
             return max(self.q_table[state], key=self.q_table[state].get)

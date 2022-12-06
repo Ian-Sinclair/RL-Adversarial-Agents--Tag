@@ -1,5 +1,5 @@
 '''
-    Contains demo information to display games and agent strategies.
+    Drawing information for displaying game objects.
 '''
 
 

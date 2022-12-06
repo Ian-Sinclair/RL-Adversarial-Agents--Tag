@@ -1,12 +1,14 @@
 '''
-    Learning set-up file for different agent, environment configurations.
-    -- Currently includes
-        - single_goal_training() :
-            Trains a single agent to find a fixed goal for static (non-changing) environments
-            (This is the most basic form of q-learning for path finding.)
-        - Tag_training() :
-            adversarial agents learn to play tag currently initializes with random grid.
-            Demo's current strategy every 1000 epocs or so.
+    -Ian Sinclair-
+    This is the main program for training an agent. 
+    In general there are several pre-made curriculums the agents will
+    learn from the one used in the paper is 'random_curriculums' which
+    places the agents in 100,000 randomly generated games of random size
+    and allows each game to play out, updated each agents Q table as the game
+    proceeds.
+    A good option to run is 'default_curriculum' which is intentionally shortened to
+    15,000 epocs (games) to demonstrate the learning ability of the agents without a 
+    serious time commitment.
 '''
 
 import csv
