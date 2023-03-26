@@ -10,7 +10,7 @@ each new experience will be treated as a new state in the Q table. This is done 
 
 ## Summary
 
-> Reinforcement learning is a common technique in the development of intelligent agents. In particular, many
+Reinforcement learning is a common technique in the development of intelligent agents. In particular, many
 agents can take information about their surroundings to learn complex tasks such as playing chess or navi-
 gating distressed environments. However, as these tasks become more complicated it may become relevant
 to preferentially select informational attributes of the environment that most help in the learning process. For
@@ -25,7 +25,7 @@ state space reduction technique.
 
 ## Design
 
-> Two agents are designed to compete in a game of tag. The game is played on a rectangular grid where each game object
+Two agents are designed to compete in a game of tag. The game is played on a rectangular grid where each game object
 can occupy a single space. Aside from the agents, there are walls that block movement. In general agent 1 (seeker) is
 tasked with seeking out agent 2 (runner) and occupying that same space. This results in agent 1 winning the game and
 getting a reward and agent 2 losing reward. Additionally, if agent 2 survives 200 game steps the game ends. This will
@@ -39,10 +39,13 @@ in very complex more principally generated terrains to test the strength of thei
 
 This section includes a brief description of each file in the project.
 
+- Video_Demo
+  - Folder containing DIFs with visual results (view to watch the results of the pre-trained models)
+
 - src
   - Folder containing all code
 
-- Q_tables
+- src/Q_tables
   - Storage folder to hold pre-trained Q tables.
 
 - src/game.py  
@@ -91,9 +94,15 @@ This section includes a brief description of each file in the project.
 Training take a long time and so I think one of the best ways to showcase the project is to give the option to load pre-trained agents into different environments.
 This also demonstrates the adaptive policies of the agents.
 
-- In general, demo.py take terminal options to load different agents and different game board types.
+- In general, demo.py take terminal options to load different agents and different game board types.  
 
-- First run python demo.py this will select default seeker.pkl and runner.pkl and a random game board.
+cd into the src folder,  
+
+```console
+cd src
+```
+
+- Run python demo.py this will select default seeker.pkl and runner.pkl and a random game board.
 
 ```console
 python demo.py
@@ -102,7 +111,7 @@ python demo.py
 From here you can change the inputs to the terminal command. First select a better agent with
 
 ```console
-python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl
+python demo.py --SFile Q_tables/Seeker_Basic_Tree.pkl --RFile Q_tables/Runner_Basic_Tree.pkl
 ```
 
 This will load the agents trained will all three levels of state space abstraction.  
@@ -110,7 +119,7 @@ This will load the agents trained will all three levels of state space abstracti
 - From here you can change the type of the game board by using,
 
 ```console
-python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25
+python demo.py --SFile Q_tables/Seeker_Basic_Tree.pkl --RFile Q_tables/Runner_Basic_Tree.pkl -z 25
 ```
 
 change 25 to any integer.
@@ -118,23 +127,29 @@ change 25 to any integer.
 - Next, you can change the amount of games are run in the demo.
 
 ```console
-python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25 -n 5
+python demo.py --SFile Q_tables/Seeker_Basic_Tree.pkl --RFile Q_tables/Runner_Basic_Tree.pkl -z 25 -n 5
 ```
 
 - You can also change the type of game environment to something more principled.
 
 ```console
-python demo.py --SFile Seeker_Basic_Tree.pkl --RFile Runner_Basic_Tree.pkl -z 25 -n 5 -t roomsGrid
+python demo.py --SFile Q_tables/Seeker_Basic_Tree.pkl --RFile Q_tables/Runner_Basic_Tree.pkl -z 25 -n 5 -t roomsGrid
 ```
 
 Other options for game environments are, ['roomsGrid' , 'randomGrid', 'uniformGrid', 'emptyGrid'] select any of to showcase.
 
 - I think this completes the useful parameters that can be changed in the demo.py file. From here it may be fun to put the
 different agents against each other. Try switching the --SFile or --RFile to some of the following.  
---SFile  -> [Seeker_Basic_Tree.pkl , Seeker.pkl]  
---RFile  -> [Runner_Basic_Tree.pkl , Runner.pkl]  
+--SFile  -> [Q_tables/Seeker_Basic_Tree.pkl , Q_tables/Seeker.pkl]  
+--RFile  -> [Q_tables/Runner_Basic_Tree.pkl , Q_tables/Runner.pkl]  
 
 ## Training new agents
+
+cd into the src folder,  
+
+```console
+cd src
+```
 
 - This section leads through how to train new agents. There are only a few easy commands from the terminal.
 In general training can take a long time, however, the the algorithm will demo the agents progress every 1000
@@ -155,7 +170,7 @@ which takes about 90 minutes in total to train. In contrast this default curricu
 'Default_Seeker.pkl' and 'Default_Runner.pkl' which can then be demoed again with,
 
 ```console
-python demo.py --SFile Default_Seeker.pkl --RFile Default_Runner.pkl
+python demo.py --SFile Q_tables/Default_Seeker.pkl --RFile Q_tables/Default_Runner.pkl
 ```
 
 The above sections provide a instructions for a high level showcase of the project. From here, most files have their own test cases that can be run;

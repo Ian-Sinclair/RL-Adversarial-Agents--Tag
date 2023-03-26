@@ -94,8 +94,8 @@ def main(argv) :
                                 RFile <Runner file location>')
       sys.exit(2)
     
-    Seekers = 'Seeker.pkl'
-    Runners = 'Runner.pkl'
+    Seekers = 'Q_tables/Seeker.pkl'
+    Runners = 'Q_tables/Runner.pkl'
     game_size = (15,15)
     collect_GIF = None
     game_type = 'randomGrid'

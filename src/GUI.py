@@ -177,8 +177,9 @@ class GUI(tk.Tk) :
             epsilon = 0,
             animation_refresh_seconds = 0.02) :
             print("Agents Will Preform Random Movements")
-            self.root.wait_visibility()  # Saves animation frames for window origination
+            #self.root.wait_visibility()  # Saves animation frames for window origination
             #  lines = self.draw_grid( game )  #  draws grid lines
+            print('waiting.....')
             rectangels = self.draw_defaultObjects( game )
             char_seekers = self.draw_agent( game , seekers )
             char_runners = self.draw_agent( game , runners )
@@ -205,7 +206,7 @@ class GUI(tk.Tk) :
             FileName = None
             ) :
             images = []
-            self.root.wait_visibility()  # Saves animation frames for window origination
+            #self.root.wait_visibility()  # Saves animation frames for window origination
             #  lines = self.draw_grid( game )  #  draws grid lines
             self.draw_background(game)
             rectangels = self.draw_defaultObjects( game )
@@ -285,7 +286,7 @@ class GUI(tk.Tk) :
 
 def test_GUI_Random() :
     print('Demoing Random Game')
-    q = game.game((15,15), walls_prob=0.3)
+    q = game.game((15,15), walls_prob=0.0)
     q.print_game()
     red = agent(q, symbol = {"R"}, color = 'red')
     blue = agent(q, symbol = {"B"}, color = 'green')

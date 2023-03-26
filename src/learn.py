@@ -424,7 +424,7 @@ def main(argv) :
         data_collection(seeker_file, runner_file, game_length_outfile, Avg_Distance_outfile, GIF_File = GIF_outfile)
         sys.exit(2)
 
-    default_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Default_Seeker.pkl',runner_file='Default_Runner.pkl')
+    default_curriculum(seeker_strat='basic_tree',runner_strat='basic_tree',seeker_file='Q_tables/Default_Seeker.pkl',runner_file='Q_tables/Default_Runner.pkl')
 
 
 if __name__ == "__main__":
