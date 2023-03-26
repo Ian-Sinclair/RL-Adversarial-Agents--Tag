@@ -41,6 +41,7 @@ This section includes a brief description of each file in the project.
 
 - Video_Demo
   - Folder containing DIFs with visual results (view to watch the results of the pre-trained models)
+  - Video_Demo/Abstraction_lvl_1_2_3.GIF is the result of the complete state space.  
 
 - src
   - Folder containing all code
